@@ -4,7 +4,7 @@ TURKISH
 WHMCS Sms Eklentisi
 ---------------
 
-WHMCS için açık kaynak kodlu, ücretsiz SMS gönderme eklentisidir.
+WHMCS için açık kaynak kodlu, SMS gönderme eklentisidir. Eklenti ücretsizdir.
 
 Kurulum
 ---------------

@@ -2,7 +2,7 @@
 /* WHMCS SMS Addon with GNU/GPL Licence
  * AktuelHost - http://www.aktuelhost.com
  *
- * http://github.com/shibby/WHMCS-SmsModule
+ * https://github.com/AktuelSistem/WHMCS-SmsModule
  *
  * Developed at Aktuel Sistem ve Bilgi Teknolojileri (www.aktuelsistem.com)
  * Licence: GPLv3 (http://www.gnu.org/licenses/gpl-3.0.txt)

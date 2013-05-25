@@ -17,7 +17,7 @@ class SendGsm{
     var $userid;
 
     function send(){
-        $this->gsmnumber = $this->util_gsmnumber($this->gsmnumber);
+        $this->gsmnumber = $this->util_gsmnumber($this->gsmnumber,$this->sender);
         $this->message = $this->util_convert($this->message);
 
         $sender_function = "Send" . $this->sender;
@@ -108,7 +108,13 @@ class SendGsm{
         $user = $params->user;
         $password = $params->pass;
 
-        $xml = '
+        $url = "http://www.ucuzsmsal.com/api/index.php?act=sendsms&user=$user&pass=$password&orgin=$senderid&message=".urlencode($this->message)."&numbers=$this->gsmnumber";
+
+        $result = file_get_contents($url);
+        $result = explode("|",$result);
+        $this->saveToDb($result[1]);
+
+        /*$xml = '
         <SMS>
         <oturum>
             <kullanici>' . $user . '</kullanici>
@@ -129,9 +135,9 @@ class SendGsm{
         curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        $result = curl_exec($ch);
+        $result = curl_exec($ch);*/
 
-        $this->saveToDb($result[1]);
+
 
     }
 
@@ -153,7 +159,7 @@ class SendGsm{
     }
 
     /* Here you can specify gsm numbers to your country */
-    function util_gsmnumber($number){
+    function util_gsmnumber($number,$sender){
         /* In this function i have removed special chars and
          * controlled number if it is real?
          * All numbers in Turkey starts with 0905 */
@@ -163,16 +169,33 @@ class SendGsm{
             return null;
         }
 
-        if (strlen($number) == 10) {
-            $number = '090' . $number;
-        } elseif (strlen($number) == 11) {
-            $number = '09' . $number;
-        } elseif (strlen($number) == 12) {
-            $number = '0' . $number;
-        }
+        if($sender == "ClickAtell"){
 
-        if (substr($number, 0, 4) != "0905") {
-            return null;
+        }elseif($sender == "UcuzSmsAl"){
+
+            if (strlen($number) == 10) {
+
+            } elseif (strlen($number) == 11) {
+                $number = substr($number,1,strlen($number));
+            } elseif (strlen($number) == 12) {
+                $number = substr($number,2,strlen($number));
+            }
+
+            if (substr($number, 0, 1) != "5") {
+                return null;
+            }
+        }else{
+            if (strlen($number) == 10) {
+                $number = '090' . $number;
+            } elseif (strlen($number) == 11) {
+                $number = '09' . $number;
+            } elseif (strlen($number) == 12) {
+                $number = '0' . $number;
+            }
+
+            if (substr($number, 0, 4) != "0905") {
+                return null;
+            }
         }
 
         return $number;

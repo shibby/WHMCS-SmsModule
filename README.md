@@ -25,6 +25,7 @@ Desteklenen SMS Firmaları
 
 * ClickAtell (Global)
 * NetGsm (Türkiye)
+* UcuzSmsAl (Türkiye)
 
 
 Desteklenen Hook'lar
@@ -87,6 +88,7 @@ Supported SMS Gateways
 
 * ClickAtell (Global)
 * NetGsm (Turkey)
+* UcuzSmsAl (Turkey)
 
 
 Supported Hooks

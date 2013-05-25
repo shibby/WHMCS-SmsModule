@@ -102,6 +102,39 @@ class SendGsm{
 
     }
 
+    function SendUcuzSmsAl(){
+        $params = json_decode($this->params);
+        $senderid = $params->senderid;
+        $user = $params->user;
+        $password = $params->pass;
+
+        $xml = '
+        <SMS>
+        <oturum>
+            <kullanici>' . $user . '</kullanici>
+            <sifre>' . $password . '</sifre>
+        </oturum>
+        <mesaj>
+            <baslik>' . $senderid . '</baslik>
+            <metin>' . $this->message . '</metin>
+            <alicilar>' . $this->gsmnumber . '</alicilar>
+        </mesaj>
+        </SMS>';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "http://www.ucuzsmsal.com//api/xml_api.php");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        $result = curl_exec($ch);
+
+        $this->saveToDb($result[1]);
+
+    }
+
     function saveToDb($msgid){
         $now = date("Y-m-d H:i:s");
         $table = "mod_aktuelsms_messages";

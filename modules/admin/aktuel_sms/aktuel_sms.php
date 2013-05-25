@@ -125,6 +125,7 @@ if (!isset($tab) || $tab == "settings") {
 						    <select name="api">
 						        <option value="ClickAtell" ' . (($settings['api'] == "ClickAtell")?"selected=\"selected\"":"") . '>ClickAtell</option>
 						        <option value="NetGsm" ' . (($settings['api'] == "NetGsm")?"selected=\"selected\"":"") . '>NetGsm</option>
+						        <option value="UcuzSmsAl" ' . (($settings['api'] == "UcuzSmsAl")?"selected=\"selected\"":"") . '>UcuzSmsAl</option>
 						    </select>
 						</td>
 			        </tr>

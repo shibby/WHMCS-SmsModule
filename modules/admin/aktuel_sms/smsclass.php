@@ -15,6 +15,7 @@ class SendGsm{
     var $gsmnumber;
     var $message;
     var $userid;
+    var $errors = array();
 
     function send(){
         $this->gsmnumber = $this->util_gsmnumber($this->gsmnumber,$this->sender);
@@ -45,18 +46,16 @@ class SendGsm{
             $sess_id = trim($sess[1]); // remove any whitespace
             $url = "$baseurl/http/sendmsg?session_id=$sess_id&to=$to&text=$text&from=$senderid";
 
-// do sendmsg call
             $ret = file($url);
             $send = explode(":", $ret[0]);
 
             if ($send[0] == "ID") {
                 $this->saveToDb($send[1]);
-//$send[1];
             } else {
-//echo "send message failed";
+                $this->addError("Send message failed. Error: $ret");
             }
         } else {
-//echo "Authentication failure: ". $ret[0];
+            $this->addError("Authentication failed. $ret[0] ");
         }
 
     }
@@ -67,37 +66,17 @@ class SendGsm{
         $user = $params->user;
         $password = $params->pass;
 
+        $this->message = urlencode($this->message);
+        $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$user&password=$password&gsmno=$this->gsmnumber&message=$this->message&msgheader=$senderid";
 
-        $xml = '<?xml version="1.0" encoding="iso-8859-9"?>
-        <mainbody>
-            <header>
-                <company>NETGSM</company>
-                <usercode>' . $user . '</usercode>
-                <password>' . $password . '</password>
-                <startdate></startdate>
-                <stopdate></stopdate>
-                <type>1:n</type>
-                <msgheader>' . $senderid . '</msgheader>
-            </header>
-            <body>
-            <msg><![CDATA[' . $this->message . ']]></msg>
-            <no>' . $this->gsmnumber . '</no>
-            </body>
-        </mainbody>';
+        $result = file_get_contents($url);
+        $return = $result;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://api.netgsm.com.tr/xmlbulkhttppost.asp");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        $result = curl_exec($ch);
-        //$result = "01 123456";
         $result = explode(" ", $result);
         if ($result[0] == "00" || $result[0] == "01" || $result[0] == "02") {
             $this->saveToDb($result[1]);
+        }else{
+            $this->addError("Send message failed. Error: $return");
         }
 
     }
@@ -108,36 +87,17 @@ class SendGsm{
         $user = $params->user;
         $password = $params->pass;
 
-        $url = "http://www.ucuzsmsal.com/api/index.php?act=sendsms&user=$user&pass=$password&orgin=$senderid&message=".urlencode($this->message)."&numbers=$this->gsmnumber";
+        $url = "http://www.ucuzsmsal.com/api/index.php?act=sendsms&user=".$user."&pass=".$password."&orgin=".$senderid."&message=".urlencode($this->message)."&numbers=$this->gsmnumber";
 
-        $result = file_get_contents($url);
+        $result = file($url);
+        $return = $result;
+
         $result = explode("|",$result);
-        $this->saveToDb($result[1]);
-
-        /*$xml = '
-        <SMS>
-        <oturum>
-            <kullanici>' . $user . '</kullanici>
-            <sifre>' . $password . '</sifre>
-        </oturum>
-        <mesaj>
-            <baslik>' . $senderid . '</baslik>
-            <metin>' . $this->message . '</metin>
-            <alicilar>' . $this->gsmnumber . '</alicilar>
-        </mesaj>
-        </SMS>';
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://www.ucuzsmsal.com//api/xml_api.php");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        $result = curl_exec($ch);*/
-
-
+        if($result[0]=="OK"){
+            $this->saveToDb($result[1]);
+        }else{
+            $this->addError("Send message failed. Error: $return");
+        }
 
     }
 
@@ -166,6 +126,7 @@ class SendGsm{
         $replacefrom = array('-', '(',')', '.', '+', ' ');
         $number = str_replace($replacefrom, '', $number);
         if (strlen($number) < 10) {
+            $this->addError("Number format is not correct.");
             return null;
         }
 
@@ -182,23 +143,27 @@ class SendGsm{
             }
 
             if (substr($number, 0, 1) != "5") {
+                $this->addError("Number format is not correct.");
                 return null;
             }
-        }else{
+        }elseif($sender == "NetGsm"){
             if (strlen($number) == 10) {
-                $number = '090' . $number;
+                $number = '90' . $number;
             } elseif (strlen($number) == 11) {
-                $number = '09' . $number;
-            } elseif (strlen($number) == 12) {
-                $number = '0' . $number;
+                $number = '9' . $number;
             }
 
-            if (substr($number, 0, 4) != "0905") {
+            if (substr($number, 0, 3) != "905") {
+                $this->addError("Number format is not correct.");
                 return null;
             }
         }
 
         return $number;
+    }
+
+    function addError($error){
+        $this->errors[] = $error;
     }
 
 }

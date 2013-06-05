@@ -299,7 +299,19 @@ if (!isset($tab) || $tab == "settings") {
         $send->userid = $userid;
         $send->send();
 
-        echo 'SMS Sent to '.$gsmnumber;
+
+        if(count($send->errors) > 0){
+            echo '<ul>';
+            foreach($send->errors as $error){
+                echo "<li>$error</li>";
+            }
+            echo '</ul>';
+
+        }else{
+            echo 'SMS Sent to '.$gsmnumber;
+        }
+
+
     }
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`

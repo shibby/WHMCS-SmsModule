@@ -38,7 +38,7 @@ class SendGsm{
         $to = $this->gsmnumber;
 
         $url = "$baseurl/http/auth?user=$user&password=$password&api_id=$api_id&from=$senderid";
-        $ret = file($url);
+        $ret = file_get_contents($url);
 
         $sess = explode(":", $ret[0]);
         if ($sess[0] == "OK") {
@@ -46,7 +46,7 @@ class SendGsm{
             $sess_id = trim($sess[1]); // remove any whitespace
             $url = "$baseurl/http/sendmsg?session_id=$sess_id&to=$to&text=$text&from=$senderid";
 
-            $ret = file($url);
+            $ret = file_get_contents($url);
             $send = explode(":", $ret[0]);
 
             if ($send[0] == "ID") {
@@ -89,7 +89,7 @@ class SendGsm{
 
         $url = "http://www.ucuzsmsal.com/api/index.php?act=sendsms&user=".$user."&pass=".$password."&orgin=".$senderid."&message=".urlencode($this->message)."&numbers=$this->gsmnumber";
 
-        $result = file($url);
+        $result = file_get_contents($url);
         $return = $result;
 
         $result = explode("|",$result);

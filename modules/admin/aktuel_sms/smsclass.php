@@ -66,8 +66,7 @@ class SendGsm{
         $user = $params->user;
         $password = $params->pass;
 
-        $this->message = urlencode($this->message);
-        $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$user&password=$password&gsmno=$this->gsmnumber&message=$this->message&msgheader=$senderid";
+        $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$user&password=$password&gsmno=$this->gsmnumber&message=".urlencode($this->message)."&msgheader=$senderid";
 
         $result = file_get_contents($url);
         $return = $result;

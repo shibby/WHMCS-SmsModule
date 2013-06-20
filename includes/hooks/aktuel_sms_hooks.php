@@ -460,7 +460,7 @@ function InvoicePaymentReminder($args){
         JOIN tblclients as b ON b.id = a.userid
         JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
         JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
-        a.id = '".$args['invoiceid']."'
+        WHERE a.id = '".$args['invoiceid']."'
         AND `c`.`fieldid` = '".$Settings['gsmnumberfield']."'
         AND `d`.`fieldid` = '".$Settings['wantsmsfield']."'
         AND `d`.`value` = 'on'

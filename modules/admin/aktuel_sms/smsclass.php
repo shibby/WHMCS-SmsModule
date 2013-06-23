@@ -26,7 +26,6 @@ class SendGsm{
     }
 
     function SendClickAtell(){
-
         $params = json_decode($this->params);
         $senderid = $params->senderid;
         $user = $params->user;
@@ -58,6 +57,32 @@ class SendGsm{
             $this->addError("Authentication failed. $ret[0] ");
         }
 
+    }
+
+    function SendIletiMerkezi() {
+        $params = json_decode($this->params);
+        $senderid = $params->senderid;
+        $user = $params->user;
+        $password = $params->pass;
+
+        $url = "http://api.iletimerkezi.com/v1/send-sms/get/?username=$user&password=$password&receipents=$this->gsmnumber&text=".urlencode($this->message)."&sender=".urlencode($senderid);
+
+        $result = file_get_contents($url);
+        $return = $result;
+
+        if(preg_match('/<status>(.*?)<code>(.*?)<\/code>(.*?)<message>(.*?)<\/message>(.*?)<\/status>(.*?)<order>(.*?)<id>(.*?)<\/id>(.*?)<\/order>/si', $result, $result_matches)) {
+            $status_code = $result_matches[2];
+            $status_message = $result_matches[4];
+            $order_id = $result_matches[8];
+
+            if($status_code == '200') {
+                $this->saveToDb($order_id);
+            } else {
+                $this->addError("Send message failed. Error: $status_message");
+            }
+        } else {
+            $this->addError("Send message failed. Error: $return");
+        }
     }
 
     function SendNetGsm(){

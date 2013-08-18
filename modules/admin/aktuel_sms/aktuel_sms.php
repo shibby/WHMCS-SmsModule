@@ -34,10 +34,10 @@ function aktuel_sms_activate() {
             (5, 'AfterRegistrarRenewal', 'client', '', 'Sayin {firstname} {lastname}, alan adiniz basariyla yenilendi. ({domain})', '{firstname},{lastname},{domain}', 1, ''),
             (6, 'AfterModuleCreate_SharedAccount', 'client', '', 'Sayin {firstname} {lastname}, {domain} icin hosting hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}', '{firstname}, {lastname}, {domain}, {username}, {password}', 1, ''),
             (7, 'AfterModuleCreate_ResellerAccount', 'client', '', 'Sayin {firstname} {lastname}, {domain} icin reseller hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}', '{firstname}, {lastname}, {domain}, {username}, {password}', 1, ''),
-            (9, 'AcceptOrder', 'client', '', 'Sayin {firstname} {lastname}, {orderid} numarali siparisiniz onaylanmistir. ', '{firstname},{lastname},{orderid}', 0, ''),
-            (10, 'DomainRenewalNotice', 'client', '', 'Sayin {firstname} {lastname}, {domain} alanadiniz {expirydate}({x} gun sonra) tarihinde sona erecektir. Yenilemek icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {domain},{x}', 1, '15'),
-            (11, 'InvoicePaymentReminder', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, ''),
-            (12, 'InvoicePaymentReminder_FirstOverdue', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, '');";
+            (8, 'AcceptOrder', 'client', '', 'Sayin {firstname} {lastname}, {orderid} numarali siparisiniz onaylanmistir. ', '{firstname},{lastname},{orderid}', 0, ''),
+            (9, 'DomainRenewalNotice', 'client', '', 'Sayin {firstname} {lastname}, {domain} alanadiniz {expirydate}({x} gun sonra) tarihinde sona erecektir. Yenilemek icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {domain},{x}', 1, '15'),
+            (10, 'InvoicePaymentReminder', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, ''),
+            (11, 'InvoicePaymentReminder_FirstOverdue', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, '');";
 
     mysql_query($sql);
 }
@@ -312,6 +312,11 @@ if (!isset($tab) || $tab == "settings") {
             echo 'SMS Sent to '.$gsmnumber;
         }
 
+        if($_POST["debug"] == "ON"){
+            $debug = $send->logs;
+        }else{
+            $debug = null;
+        }
 
     }
 
@@ -341,18 +346,30 @@ if (!isset($tab) || $tab == "settings") {
 						    </select>
 						</td>
 					</tr>
-
 					<tr>
 					    <td class="fieldlabel" width="30%">Message</td>
 						<td class="fieldarea">
                             <textarea cols="50" name="message"></textarea>
 						</td>
 					</tr>
+					<tr>
+					    <td class="fieldlabel" width="30%">Debug</td>
+					    <td class="fieldlabel"><input type="checkbox" name="debug" value="ON"></td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
 		<p align="center"><input type="submit" value="Send" class="button" /></p>
     </form>';
+
+    if(isset($debug) and $debug != null){
+
+        echo '<p><strong>Debug result:</strong><ul>';
+        foreach($debug as $d){
+            echo "<li>$d</li>";
+        }
+        echo '</ul></p>';
+    }
 }
 
     echo 'Plugin by <a href="http://www.aktuelsistem.com/">Aktüel Sistem ve Bilgi Teknolojileri</a>';

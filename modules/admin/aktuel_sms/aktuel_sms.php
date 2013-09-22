@@ -123,6 +123,7 @@ if (!isset($tab) || $tab == "settings") {
 			            <td class="fieldlabel" width="30%">Sender</td>
 						<td class="fieldarea">
 						    <select name="api">
+						    <option value="Hemenposta" ' . (($settings['api'] == "Hemenposta")?"selected=\"selected\"":"") . '>Hemenposta</option>
 						        <option value="ClickAtell" ' . (($settings['api'] == "ClickAtell")?"selected=\"selected\"":"") . '>ClickAtell</option>
                                 			<option value="IletiMerkezi" ' . (($settings['api'] == "IletiMerkezi")?"selected=\"selected\"":"") . '>Ileti Merkezi</option>
 						        <option value="NetGsm" ' . (($settings['api'] == "NetGsm")?"selected=\"selected\"":"") . '>NetGsm</option>

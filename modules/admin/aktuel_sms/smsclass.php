@@ -36,6 +36,44 @@ class SendGsm{
 
         $this->$sender_function();
     }
+    
+     function SendHemenposta(){
+        $params = $this->getParams();
+
+		$postUrl = "http://sms.modexi.com/service/sendxml";
+		// XML - formatında data
+		$xmlString="<SMS><authentification><username>$params->user</username><password>$params->pass</password></authentification><message><sender>$params->senderid</sender></message><recipients><text>$this->message</text><gsm>$this->gsmnumber</gsm></recipients></SMS>";
+
+		$fields = $xmlString;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $postUrl);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+        $return = $result;
+        $this->addLog("Result from server: ".$result);
+
+        if(preg_match('/<status>(.*?)<\/status>(.*?)<DESC>(.*?)<\/DESC>(.*?)<package>(.*?)<\/package>/si', $result, $result_matches)) {
+            $status_code = $result_matches[1];
+            $status_message = $result_matches[3];
+            $order_id = $result_matches[5];
+
+            if($status_code > 0) {
+                $this->addLog("Message sent.");
+                $this->saveToDb($order_id);
+            } else {
+                $this->addLog("Message sent failed. Error: $status_message");
+                $this->addError("Send message failed. Error: $status_code");
+            }
+        } else {
+            $this->addLog("Message sent failed. Error: $return");
+            $this->addError("Send message failed. Error: $return");
+        }
+    }
 
     function SendClickAtell(){
         $params = $this->getParams();

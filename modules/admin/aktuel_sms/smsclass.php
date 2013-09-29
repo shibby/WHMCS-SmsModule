@@ -36,6 +36,63 @@ class SendGsm{
 
         $this->$sender_function();
     }
+
+     function SendMutlucell(){
+        $params = $this->getParams();
+		// XML - formatında data
+		$xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
+		'<smspack ka="'.$params->user.'" pwd="'.$params->pass.'" org="'.$params->senderid.'" >'.
+			'<mesaj>'.
+				'<metin>'.$this->message.'</metin>'.
+				'<nums>'.$this->gsmnumber.'</nums>'.
+			'</mesaj>'.
+		'</smspack>';	
+		$URL = "https://smsgw.mutlucell.com/smsgw-ws/sndblkex";
+        $ch = curl_init($URL);
+        curl_setopt($ch, CURLOPT_MUTE, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "$xml_data");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);        
+		curl_close($ch);
+        $return = $result;
+        $this->addLog("Geri Dönüş Kodu: ".$result);
+		$h0 =	20;
+		$h1=	21;
+		$h2=	22;
+		$h3=	23;
+		$h4=	24;
+		$h5=	25;
+		$h6=	30;
+	if($return == $h0):    
+		$this->addLog("Post edilen xml eksik veya hatalı.Hata Kodu: $return");
+		$this->addError("Post edilen xml eksik veya hatalı.Hata Kodu: $return");
+	elseif($return == $h1):    
+		$this->addLog("Kullanılan originatöre sahip değilsiniz.Hata Kodu: $return");
+		$this->addError("Kullanılan originatöre sahip değilsiniz.Hata Kodu: $return");
+	elseif($return == $h2):    
+		$this->addLog("Kontörünüz yetersiz.Hata Kodu: $return");
+		$this->addError("Kontörünüz yetersiz.Hata Kodu: $return");
+	elseif($return == $h3):    
+		$this->addLog("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $return");
+		$this->addError("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $return");
+	elseif($return == $h4):    
+		$this->addLog("Şu anda size ait başka bir işlem aktif.Hata Kodu: $return");
+		$this->addError("Şu anda size ait başka bir işlem aktif.Hata Kodu: $return");
+	elseif($return == $h5):  
+		$this->addLog("Bu hatayı alırsanız, işlemi 1-2 dk sonra tekrar deneyin.Hata Kodu: $return");
+		$this->addError("Bu hatayı alırsanız, işlemi 1-2 dk sonra tekrar deneyin.Hata Kodu: $return");
+	elseif($return == $h6):    
+		$this->addLog("Hesap Aktivasyonu sağlanmamış.Hata Kodu: $return");
+		$this->addError("Hesap Aktivasyonu sağlanmamış.Hata Kodu: $return");
+	else:
+		$this->addLog("Mesaj Başarıyla Gönderildi.");
+		$this->saveToDb($result);
+	endif;
+    }
     
      function SendHemenposta(){
         $params = $this->getParams();

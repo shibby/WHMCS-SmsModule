@@ -128,6 +128,7 @@ if (!isset($tab) || $tab == "settings") {
                                 			<option value="IletiMerkezi" ' . (($settings['api'] == "IletiMerkezi")?"selected=\"selected\"":"") . '>Ileti Merkezi</option>
 						        <option value="NetGsm" ' . (($settings['api'] == "NetGsm")?"selected=\"selected\"":"") . '>NetGsm</option>
 						        <option value="UcuzSmsAl" ' . (($settings['api'] == "UcuzSmsAl")?"selected=\"selected\"":"") . '>UcuzSmsAl</option>
+						       	<option value="Mutlucell" ' . (($settings['api'] == "Mutlucell")?"selected=\"selected\"":"") . '>Mutlucell</option>
 						    </select>
 						</td>
 			        </tr>

@@ -45,6 +45,24 @@ function aktuel_sms_activate() {
     mysql_query($sql);
 }
 
+function aktuel_sms_deactivate() {
+
+    $update = array(
+        "api" => "",
+        "apiparams" => "",
+        'wantsmsfield' => $_POST['wantsmsfield'],
+        'gsmnumberfield' => $_POST['gsmnumberfield'],
+        'path' => $_POST['path']
+    );
+    update_query("mod_aktuelsms_settings", $update, "");
+
+    $sql = "DELETE FROM `mod_aktuelsms_templates`";
+    mysql_query($sql);
+
+    # Return Result
+    return array('status'=>'success','description'=>'Module deactivated succesfully.');
+}
+
 $tab = $_GET['tab'];
 
 echo '

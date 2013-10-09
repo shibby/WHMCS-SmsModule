@@ -32,6 +32,18 @@ function getTemplateExtra($name){
     }
 }
 
+function getAdminGsm($name){
+    $where = array("name" => array("sqltype" => "LIKE", "value" => $name));
+    $result = select_query("mod_aktuelsms_templates", "admingsm,active", $where);
+    $data = mysql_fetch_assoc($result);
+
+    if($data['active'] == 0){
+        return false;
+    }else{
+        return $data['admingsm'];
+    }
+}
+
 function TicketAdminReply($args){
 
     $template = getTemplate('TicketAdminReply');
@@ -144,8 +156,9 @@ function ClientAdd($args){
 	LIMIT 1";
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
+    $UserInformation = mysql_fetch_assoc($result);
+
     if($num_rows == 1){
-        $UserInformation = mysql_fetch_assoc($result);
         $replacefrom = array('{firstname}','{lastname}','{email}','{password}');
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['email'],$args['password']);
         $Message = str_replace($replacefrom,$replaceto,$template);
@@ -157,8 +170,16 @@ function ClientAdd($args){
         $send->message = $Message;
         $send->userid = $UserInformation['id'];
         $send->send();
-
     }
+
+    /* Admin section */
+    $data = array(
+        'firstname' => $UserInformation['firstname'],
+        'lastname' => $UserInformation['lastname'],
+        'email' => $args['email'],
+    );
+    sendToAdmin('ClientAdd_admin',$data);
+    /* Admin section */
 }
 
 function AfterRegistrarRegistration($args){
@@ -200,6 +221,13 @@ function AfterRegistrarRegistration($args){
         $send->userid = $args['params']['userid'];
         $send->send();
     }
+
+    /* Admin section */
+    $data = array(
+        'domain' => $args['params']['sld'].".".$args['params']['tld']
+    );
+    sendToAdmin('AfterRegistrarRegistration_admin',$data);
+    /* Admin section */
 }
 
 function AfterRegistrarRenewal($args){
@@ -241,6 +269,13 @@ function AfterRegistrarRenewal($args){
         $send->userid = $args['params']['userid'];
         $send->send();
     }
+
+    /* Admin section */
+    $data = array(
+        'domain' => $args['params']['sld'].".".$args['params']['tld']
+    );
+    sendToAdmin('AfterRegistrarRenewal_admin',$data);
+    /* Admin section */
 }
 
 function AfterRegistrarRegistrationFailed($args){
@@ -483,6 +518,49 @@ function InvoicePaymentReminder($args){
         $send->userid = $UserInformation['userid'];
         $send->send();
     }
+}
+
+function sendToAdmin($template,$args){
+    $template = getTemplate($template);
+
+    if ($template == false){
+        return null;
+    }
+
+    $admingsm = getAdminGsm($template);
+    $admingsm = explode(',',$admingsm);
+    print_r($admingsm);
+    if(isset($admingsm[0]) && !empty($admingsm[0])){
+        $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
+        print_r($Settings);
+        if(!$Settings['api'] || !$Settings['apiparams']){
+            return null;
+        }
+        include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
+
+        $replacefrom = "";
+        $replaceto = "";
+        foreach($args as $k=>$a){
+            $replacefrom[] = '{'.$k.'}';
+            $replaceto[] = $a;
+        }
+        print_r($replacefrom);
+        print_r($replaceto);
+        $Message = str_replace($replacefrom,$replaceto,$template);
+        print_r($Message);
+        $send = new SendGsm();
+        foreach($admingsm as $gsm){
+
+            print_r($gsm);
+            $send->sender = $Settings['api'];
+            $send->params = $Settings['apiparams'];
+            $send->gsmnumber = $gsm;
+            $send->message = $Message;
+            $send->userid = 0;
+            $send->send();
+        }
+    }
+    die("ee");
 }
 
 add_hook("ClientChangePassword", 1, "ClientChangePassword", "");

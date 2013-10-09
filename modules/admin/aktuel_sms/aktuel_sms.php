@@ -23,7 +23,7 @@ function aktuel_sms_activate() {
     $sql = "INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`, `path`) VALUES ('', '', 0, 0, '');";
     mysql_query($sql);
 
-    $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_templates` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(50) NOT NULL,`type` enum('client','admin') NOT NULL,`admingsm` varchar(60) NOT NULL,`template` varchar(240) NOT NULL,`variables` varchar(500) NOT NULL,`active` tinyint(1) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13;";
+    $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_templates` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(50) NOT NULL,`type` enum('client','admin') NOT NULL,`admingsm` varchar(255) NOT NULL,`template` varchar(240) NOT NULL,`variables` varchar(500) NOT NULL,`active` tinyint(1) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13;";
     mysql_query($sql);
 
     $sql = "INSERT INTO `mod_aktuelsms_templates` (`id`, `name`, `type`, `admingsm`, `template`, `variables`, `active`) VALUES
@@ -49,12 +49,14 @@ echo '
     <ul>
 	    <li class="' . (($tab == "settings")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&tab=settings">Settings</a></li>
 		<li class="' . ((@$_GET['type'] == "client")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&tab=templates&type=client">Client SMS Templates</a></li>
+		<li class="' . ((@$_GET['type'] == "admin")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&tab=templates&type=admin">Admin SMS Templates</a></li>
 		<li class="' . (($tab == "sendbulk")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&tab=sendbulk">Send SMS</a></li>
 		<li class="' . (($tab == "messages")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&amp;tab=messages">Messages</a></li>
 		</ul>
 </div>
 ';
-if (!isset($tab) || $tab == "settings") {
+if (!isset($tab) || $tab == "settings")
+{
 
     /* UPDATE SETTINGS */
     if ($_POST['params']) {
@@ -169,7 +171,9 @@ if (!isset($tab) || $tab == "settings") {
 		<p align="center"><input type="submit" value="Save Changes" class="button" /></p>
     </form>
     ';
-} elseif ($tab == "templates") {
+}
+elseif ($tab == "templates")
+{
 
     if ($_POST['submit']) {
         $where = array("type" => array("sqltype" => "LIKE", "value" => $_GET['type']));
@@ -184,13 +188,17 @@ if (!isset($tab) || $tab == "settings") {
                 "template" => $_POST[$data['id'] . '_template'],
                 "active" => $tmp_active
             );
+
             if(isset($_POST[$data['id'] . '_extra'])){
-                $update['extra']= $_POST[$data['id'] . '_extra'];
+                $update['extra']= trim($_POST[$data['id'] . '_extra']);
+            }
+            if(isset($_POST[$data['id'] . '_admingsm'])){
+                $update['admingsm']= $_POST[$data['id'] . '_admingsm'];
+                $update['admingsm'] = str_replace(" ","",$update['admingsm']);
             }
             update_query("mod_aktuelsms_templates", $update, "id = " . $data['id']);
         }
     }
-
 
     echo '<form action="" method="post">
     <input type="hidden" name="action" value="save" />
@@ -224,12 +232,24 @@ if (!isset($tab) || $tab == "settings") {
             <td>' . $data['variables'] . '</td>
         </tr>
         ';
+
         if(!empty($data['extra'])){
             echo '
             <tr>
 		        <td class="fieldlabel" width="30%">Extra</td>
 				<td class="fieldarea">
 				    <input type="text" name="'.$data['id'].'_extra" value="'.$data['extra'].'">
+				</td>
+			</tr>
+            ';
+        }
+        if($_GET['type'] == "admin"){
+            echo '
+            <tr>
+		        <td class="fieldlabel" width="30%">Admin Gsm Numbers</td>
+				<td class="fieldarea">
+				    <input type="text" name="'.$data['id'].'_admingsm" value="'.$data['admingsm'].'">
+				    Seperate with comma. e.g: 5321234567.5321234568
 				</td>
 			</tr>
             ';
@@ -242,7 +262,9 @@ if (!isset($tab) || $tab == "settings") {
 		<p align="center"><input type="submit" name="submit" value="Save Changes" class="button" /></p>
     </form>';
 
-} elseif ($tab == "messages") {
+}
+elseif ($tab == "messages")
+{
     if(!empty($_GET['deletesms'])){
         $smsid = (int) $_GET['deletesms'];
         $sql = "DELETE FROM mod_aktuelsms_messages WHERE id = '$smsid'";
@@ -281,7 +303,9 @@ if (!isset($tab) || $tab == "settings") {
     </table>
     ';
 
-}elseif($tab=="sendbulk"){
+}
+elseif($tab=="sendbulk")
+{
 
     $result = select_query("mod_aktuelsms_settings", "*");
     $settings = mysql_fetch_array($result);

@@ -27,7 +27,7 @@ Desteklenen SMS Firmaları
 * İleti Merkezi (Türkiye)
 * NetGsm (Türkiye)
 * UcuzSmsAl (Türkiye)
-* Mutlucell (Türkiye)
+* Mutlucell (Türkiye) (adalim)
 
 
 Desteklenen Hook'lar
@@ -44,6 +44,9 @@ Desteklenen Hook'lar
 * DomainRenewalNotice: Domainin süresinin dolmasına {x} gün kala müşteriye bilgilendirme mesajı gönderilir. {x: Eklentide belirleyebilisiniz.)
 * InvoicePaymentReminder: Eğer ödenmemiş bir fatura varsa müşteriye bilgi mesajı gönderilir.
 * InvoicePaymentReminder_FirstOverdue: Eğer fatura ödemesinin günü geçtiyse müşteriye bilgi mesajı gönderilir.
+* AfterModuleSuspend: Hosting hesabı suspend edilirse bilgi mesajı gönderilir. (adalim)
+* AfterModuleUnsuspend: Hosting hesabı unsuspend edilirse bilgi mesajı gönderilir. (adalim)
+* InvoiceCreated: Sistem yeni fatura oluşturursa bilgi mesajı gönderilir. (adalim)
 
 Katkıda bulun
 ---------------
@@ -54,6 +57,7 @@ Geliştiriciler
 ----------
 
 * [Güven Atbakan](http://github.com/shibby) - PHP Geliştirici  [Aktüel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
+* Turgay Coşkun - turgaycoskun@gmail.com  R10.net davetiyesi gönderebilirseniz karşılıklı tartışarak sms sistemimiz geliştirilebilir.
 
 Bazı Ekran Görüntüleri
 --------------

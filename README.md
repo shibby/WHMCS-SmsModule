@@ -27,6 +27,7 @@ Desteklenen SMS Firmaları
 * İleti Merkezi (Türkiye)
 * NetGsm (Türkiye)
 * UcuzSmsAl (Türkiye)
+* Mutlucell (Türkiye)
 
 
 Desteklenen Hook'lar
@@ -43,16 +44,20 @@ Desteklenen Hook'lar
 * DomainRenewalNotice: Domainin süresinin dolmasına {x} gün kala müşteriye bilgilendirme mesajı gönderilir. {x: Eklentide belirleyebilisiniz.)
 * InvoicePaymentReminder: Eğer ödenmemiş bir fatura varsa müşteriye bilgi mesajı gönderilir.
 * InvoicePaymentReminder_FirstOverdue: Eğer fatura ödemesinin günü geçtiyse müşteriye bilgi mesajı gönderilir.
+* AfterModuleSuspend: Hosting hesabı suspend edilirse bilgi mesajı gönderilir. 
+* AfterModuleUnsuspend: Hosting hesabı unsuspend edilirse bilgi mesajı gönderilir. 
+* InvoiceCreated: Sistem yeni fatura oluşturursa bilgi mesajı gönderilir. 
 
 Katkıda bulun
 ---------------
 
 Yeni hook, fonksiyon, sms gönderici ve diğer bütün herşeyde özgürsünüz. Eklentiyi çoğaltın (fork) ve yaptığınız değişiklikler için Pull Request gönderin.
 
-Geliştiriciler
+Katkıda bulunanlar
 ----------
 
 * [Güven Atbakan](http://github.com/shibby) - PHP Geliştirici  [Aktüel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
+* [Turgay Coşkun](http://github.com/adalim61) - turgaycoskun[at]gmail[dot]com
 
 Bazı Ekran Görüntüleri
 --------------
@@ -91,6 +96,7 @@ Supported SMS Gateways
 * Ileti Merkezi (Turkey)
 * NetGsm (Turkey)
 * UcuzSmsAl (Turkey)
+* Mutlucell (Turkey)
 
 
 Supported Hooks
@@ -107,13 +113,17 @@ Supported Hooks
 * DomainRenewalNotice: Remaining to the end of {x} days prior to the domain's end time, user will be get a message.
 * InvoicePaymentReminder: If there is a payment that not paid, user will be get a information message.
 * InvoicePaymentReminder_FirstOverdue:
+* AfterModuleSuspend: Send sms after hosting account suspended. 
+* AfterModuleUnsuspend: Send sms after hosting account unsuspended.
+* InvoiceCreated: Send sms every invoice creation. 
 
 Contribute Plugin
 ---------------
 
 You are free (as freedom) to add new hooks, functions, issues, gateways etc. Just fork plugin, change what do you want and send pull request.
 
-Developers
+Contributors
 ----------
 
 * [Guven Atbakan](http://github.com/shibby) - PHP Developer at [Aktuel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
+* [Turgay Coşkun](http://github.com/adalim61) - turgaycoskun[at]gmail[dot]com

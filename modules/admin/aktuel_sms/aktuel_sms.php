@@ -37,7 +37,10 @@ function aktuel_sms_activate() {
             (8, 'AcceptOrder', 'client', '', 'Sayin {firstname} {lastname}, {orderid} numarali siparisiniz onaylanmistir. ', '{firstname},{lastname},{orderid}', 0, ''),
             (9, 'DomainRenewalNotice', 'client', '', 'Sayin {firstname} {lastname}, {domain} alanadiniz {expirydate}({x} gun sonra) tarihinde sona erecektir. Yenilemek icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {domain},{x}', 1, '15'),
             (10, 'InvoicePaymentReminder', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, ''),
-            (11, 'InvoicePaymentReminder_FirstOverdue', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, '');";
+            (11, 'InvoicePaymentReminder_FirstOverdue', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, ''),
+			(12, 'AfterModuleSuspend', 'client', '', 'Sayin {firstname} {lastname}, {domain} alan adli hosting hesabi duraklatildi.', '{firstname},{lastname},{domain},{username},{password}', 1, ''),
+			(13, 'AfterModuleUnsuspend', 'client', '', 'Sayin {firstname} {lastname}, {domain} alan adli hosting hizmeti tekrar aktiflestirildi.', '{firstname},{lastname},{domain},{username},{password}', 1, ''),
+			(14, 'InvoiceCreated', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir fatura olusturulmustur. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, '');";
 
     mysql_query($sql);
 }
@@ -125,10 +128,12 @@ if (!isset($tab) || $tab == "settings")
 			            <td class="fieldlabel" width="30%">Sender</td>
 						<td class="fieldarea">
 						    <select name="api">
+						    <option value="Hemenposta" ' . (($settings['api'] == "Hemenposta")?"selected=\"selected\"":"") . '>Hemenposta</option>
 						        <option value="ClickAtell" ' . (($settings['api'] == "ClickAtell")?"selected=\"selected\"":"") . '>ClickAtell</option>
                                 			<option value="IletiMerkezi" ' . (($settings['api'] == "IletiMerkezi")?"selected=\"selected\"":"") . '>Ileti Merkezi</option>
 						        <option value="NetGsm" ' . (($settings['api'] == "NetGsm")?"selected=\"selected\"":"") . '>NetGsm</option>
 						        <option value="UcuzSmsAl" ' . (($settings['api'] == "UcuzSmsAl")?"selected=\"selected\"":"") . '>UcuzSmsAl</option>
+						       	<option value="Mutlucell" ' . (($settings['api'] == "Mutlucell")?"selected=\"selected\"":"") . '>Mutlucell</option>
 						    </select>
 						</td>
 			        </tr>

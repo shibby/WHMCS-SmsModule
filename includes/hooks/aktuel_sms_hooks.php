@@ -336,6 +336,109 @@ function AfterModuleCreate($args){
     }
 }
 
+function AfterModuleSuspend($args){
+
+    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
+    if(!$Settings['api'] || !$Settings['apiparams']){
+        return null;
+    }
+
+    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
+
+    $type = $args['params']['producttype'];
+
+    if($type == "hostingaccount"){
+        $template = getTemplate('AfterModuleSuspend');
+    }
+
+    if ($template == false){
+        return null;
+    }
+
+    if($type=="hostingaccount"){
+        $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
+        FROM `tblclients` as `a`
+        JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
+        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
+        WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
+        AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
+        AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+        AND `c`.`value` = 'on'
+        LIMIT 1";
+        
+    }else{
+        return null;
+    }
+
+    $result = mysql_query($userSql);
+    $num_rows = mysql_num_rows($result);
+    if($num_rows == 1){
+        $UserInformation = mysql_fetch_assoc($result);
+        $replacefrom = array('{firstname}','{lastname}','{domain}','{username}','{password}');
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain'],$args['params']['username'],$args['params']['password']);
+        $Message = str_replace($replacefrom,$replaceto,$template);
+
+        $send = new SendGsm();
+        $send->sender = $Settings['api'];
+        $send->params = $Settings['apiparams'];
+        $send->gsmnumber = $UserInformation['gsmnumber'];
+        $send->message = $Message;
+        $send->userid = $args['params']['clientsdetails']['userid'];
+        $send->send();
+    }
+}
+function AfterModuleUnsuspend($args){
+
+    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
+    if(!$Settings['api'] || !$Settings['apiparams']){
+        return null;
+    }
+
+    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
+
+    $type = $args['params']['producttype'];
+
+    if($type == "hostingaccount"){
+        $template = getTemplate('AfterModuleUnsuspend');
+    }
+
+    if ($template == false){
+        return null;
+    }
+
+    if($type=="hostingaccount"){
+        $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
+        FROM `tblclients` as `a`
+        JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
+        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
+        WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
+        AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
+        AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+        AND `c`.`value` = 'on'
+        LIMIT 1";
+        
+    }else{
+        return null;
+    }
+
+    $result = mysql_query($userSql);
+    $num_rows = mysql_num_rows($result);
+    if($num_rows == 1){
+        $UserInformation = mysql_fetch_assoc($result);
+        $replacefrom = array('{firstname}','{lastname}','{domain}','{username}','{password}');
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain'],$args['params']['username'],$args['params']['password']);
+        $Message = str_replace($replacefrom,$replaceto,$template);
+
+        $send = new SendGsm();
+        $send->sender = $Settings['api'];
+        $send->params = $Settings['apiparams'];
+        $send->gsmnumber = $UserInformation['gsmnumber'];
+        $send->message = $Message;
+        $send->userid = $args['params']['clientsdetails']['userid'];
+        $send->send();
+    }
+}
+
 function AcceptOrder_SMS($args){
 
     $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
@@ -434,6 +537,51 @@ function DomainRenewalNotice($args){
     }
 }
 
+function InvoiceCreated($args){
+
+    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
+    if(!$Settings['api'] || !$Settings['apiparams']){
+        return null;
+    }
+
+    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
+
+    $template = getTemplate('InvoiceCreated');
+
+    if ($template == false){
+        return null;
+    }
+
+    $userSql = "
+        SELECT a.duedate,b.id as userid,b.firstname,b.lastname,`c`.`value` as `gsmnumber` FROM `tblinvoices` as `a`
+        JOIN tblclients as b ON b.id = a.userid
+        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
+        JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
+        WHERE a.id = '".$args['invoiceid']."'
+        AND `c`.`fieldid` = '".$Settings['gsmnumberfield']."'
+        AND `d`.`fieldid` = '".$Settings['wantsmsfield']."'
+        AND `d`.`value` = 'on'
+        LIMIT 1
+    ";
+
+    $result = mysql_query($userSql);
+    $num_rows = mysql_num_rows($result);
+    if($num_rows == 1){
+        $UserInformation = mysql_fetch_assoc($result);
+        $replacefrom = array('{firstname}','{lastname}','{duedate}');
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$UserInformation['duedate']);
+        $Message = str_replace($replacefrom,$replaceto,$template);
+
+        $send = new SendGsm();
+        $send->sender = $Settings['api'];
+        $send->params = $Settings['apiparams'];
+        $send->gsmnumber = $UserInformation['gsmnumber'];
+        $send->message = $Message;
+        $send->userid = $UserInformation['userid'];
+        $send->send();
+    }
+}
+
 function InvoicePaymentReminder($args){
 
     $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
@@ -496,6 +644,8 @@ add_hook("AfterRegistrarRenewal", 1, "AfterRegistrarRenewal", "");
 
 #Product
 add_hook("AfterModuleCreate", 1, "AfterModuleCreate", "");
+add_hook("AfterModuleSuspend", 1, "AfterModuleSuspend", "");
+add_hook("AfterModuleUnsuspend", 1, "AfterModuleUnsuspend", "");
 
 #Order
 add_hook("AcceptOrder", 1, "AcceptOrder_SMS", "");
@@ -503,6 +653,7 @@ add_hook("AcceptOrder", 1, "AcceptOrder_SMS", "");
 #Invoice
 //add_hook("InvoiceCreationPreEmail", 1, "InvoiceCreationPreEmail", ""); # invoiceid
 add_hook("InvoicePaymentReminder", 1, "InvoicePaymentReminder", ""); # invoiceid - type: reminder, firstoverdue, secondoverdue, thirdoverdue
+add_hook("InvoiceCreated", 1, "InvoiceCreated", "");
 
 #AktuelSms Cron
 add_hook("DailyCronJob", 1, "DomainRenewalNotice", "");

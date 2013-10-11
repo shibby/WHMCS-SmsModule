@@ -17,7 +17,7 @@ function aktuel_sms_activate() {
     $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) NOT NULL,`text` text NOT NULL,`msgid` varchar(50) NOT NULL,`status` varchar(10) NOT NULL,`user` int(11) NOT NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
     mysql_query($sql);
 
-    $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(100) NOT NULL,`wantsmsfield` int(11) NOT NULL,`gsmnumberfield` int(11) NOT NULL,`path` varchar(100) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;";
+    $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(100) NOT NULL,`wantsmsfield` int(11) NOT NULL,`gsmnumberfield` int(11) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;";
     mysql_query($sql);
 
     $sql = "INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`, `path`) VALUES ('', '', 0, 0, '');";
@@ -26,40 +26,20 @@ function aktuel_sms_activate() {
     $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_templates` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(50) NOT NULL,`type` enum('client','admin') NOT NULL,`admingsm` varchar(255) NOT NULL,`template` varchar(240) NOT NULL,`variables` varchar(500) NOT NULL,`active` tinyint(1) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13;";
     mysql_query($sql);
 
-    $sql = "INSERT INTO `mod_aktuelsms_templates` (`id`, `name`, `type`, `admingsm`, `template`, `variables`, `active`) VALUES
-            (1, 'TicketAdminReply', 'client', '', 'Sayin {firstname} {lastname}, ({ticketsubject}) konu baslikli destek talebiniz yanitlandi.', '{firstname},{lastname},{ticketid},{ticketsubject}', 1, ''),
-            (2, 'ClientChangePassword', 'client', '', 'Sayin {firstname} {lastname}, sifreniz degistirildi. Eger bu islemi siz yapmadiysaniz lutfen bizimle iletisime gecin.', '{firstname},{lastname}', 1, ''),
-            (3, 'ClientAdd', 'client', '', 'Sayin {firstname} {lastname}, AktuelHost a kayit oldugunuz icin tesekkur ederiz. Email: {email} Sifre: {password}', '{firstname},{lastname},{email},{password}', 1, ''),
-            (4, 'AfterRegistrarRegistration', 'client', '', 'Sayin {firstname} {lastname}, alan adiniz basariyla kayit edildi. ({domain})', '{firstname},{lastname},{domain}', 1, ''),
-            (5, 'AfterRegistrarRenewal', 'client', '', 'Sayin {firstname} {lastname}, alan adiniz basariyla yenilendi. ({domain})', '{firstname},{lastname},{domain}', 1, ''),
-            (6, 'AfterModuleCreate_SharedAccount', 'client', '', 'Sayin {firstname} {lastname}, {domain} icin hosting hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}', '{firstname}, {lastname}, {domain}, {username}, {password}', 1, ''),
-            (7, 'AfterModuleCreate_ResellerAccount', 'client', '', 'Sayin {firstname} {lastname}, {domain} icin reseller hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}', '{firstname}, {lastname}, {domain}, {username}, {password}', 1, ''),
-            (8, 'AcceptOrder', 'client', '', 'Sayin {firstname} {lastname}, {orderid} numarali siparisiniz onaylanmistir. ', '{firstname},{lastname},{orderid}', 0, ''),
-            (9, 'DomainRenewalNotice', 'client', '', 'Sayin {firstname} {lastname}, {domain} alanadiniz {expirydate}({x} gun sonra) tarihinde sona erecektir. Yenilemek icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {domain},{x}', 1, '15'),
-            (10, 'InvoicePaymentReminder', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, ''),
-            (11, 'InvoicePaymentReminder_FirstOverdue', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, ''),
-			(12, 'AfterModuleSuspend', 'client', '', 'Sayin {firstname} {lastname}, {domain} alan adli hosting hesabi duraklatildi.', '{firstname},{lastname},{domain},{username},{password}', 1, ''),
-			(13, 'AfterModuleUnsuspend', 'client', '', 'Sayin {firstname} {lastname}, {domain} alan adli hosting hizmeti tekrar aktiflestirildi.', '{firstname},{lastname},{domain},{username},{password}', 1, ''),
-			(14, 'InvoiceCreated', 'client', '', 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir fatura olusturulmustur. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com', '{firstname}, {lastname}, {duedate}', 1, '');";
-
-    mysql_query($sql);
+    //Creating hooks
+    $class = new AktuelSms();
+    $class->checkHooks();
 }
 
 function aktuel_sms_deactivate() {
 
-    $update = array(
-        "api" => "",
-        "apiparams" => "",
-        'wantsmsfield' => $_POST['wantsmsfield'],
-        'gsmnumberfield' => $_POST['gsmnumberfield'],
-        'path' => $_POST['path']
-    );
-    update_query("mod_aktuelsms_settings", $update, "");
-
-    $sql = "DELETE FROM `mod_aktuelsms_templates`";
+    $sql = "DROP TABLE `mod_aktuelsms_templates`";
+    mysql_query($sql);
+   $sql = "DROP TABLE `mod_aktuelsms_settings`";
+    mysql_query($sql);
+   $sql = "DROP TABLE `mod_aktuelsms_messages`";
     mysql_query($sql);
 
-    # Return Result
     return array('status'=>'success','description'=>'Module deactivated succesfully.');
 }
 
@@ -73,40 +53,59 @@ echo '
 		<li class="' . ((@$_GET['type'] == "admin")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&tab=templates&type=admin">Admin SMS Templates</a></li>
 		<li class="' . (($tab == "sendbulk")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&tab=sendbulk">Send SMS</a></li>
 		<li class="' . (($tab == "messages")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&amp;tab=messages">Messages</a></li>
-		</ul>
+		<li class="' . (($tab == "update")?"tabselected":"tab") . '"><a href="addonmodules.php?module=aktuel_sms&amp;tab=update">Update</a></li>
+	</ul>
 </div>
 ';
 if (!isset($tab) || $tab == "settings")
 {
+    echo tab_settings();
+}
+elseif ($tab == "templates")
+{
+    echo tab_templates();
+}
+elseif ($tab == "messages")
+{
+    echo tab_messages();
+}
+elseif($tab=="sendbulk")
+{
+    echo tab_sendbulk();
+}
+elseif($tab == "update"){
+    echo tab_update();
+}
 
+function tab_settings(){
     /* UPDATE SETTINGS */
     if ($_POST['params']) {
         $update = array(
             "api" => $_POST['api'],
             "apiparams" => json_encode($_POST['params']),
             'wantsmsfield' => $_POST['wantsmsfield'],
-            'gsmnumberfield' => $_POST['gsmnumberfield'],
-            'path' => $_POST['path']
+            'gsmnumberfield' => $_POST['gsmnumberfield']
         );
         update_query("mod_aktuelsms_settings", $update, "");
-
     }
     /* UPDATE SETTINGS */
 
     $result = mysql_query("SELECT * FROM mod_aktuelsms_settings LIMIT 1");
     $num_rows = mysql_num_rows($result);
-    if(!$num_rows ||$num_rows <1){
+    if(!$num_rows || $num_rows < 1){
         aktuel_sms_activate();
     }
     $settings = mysql_fetch_array($result);
     $apiparams = json_decode($settings['apiparams']);
 
+    $html = '';
     /* CUSTOM FIELDS START */
     $where = array(
         "fieldtype" => array("sqltype" => "LIKE", "value" => "tickbox"),
         "showorder" => array("sqltype" => "LIKE", "value" => "on")
     );
     $result = select_query("tblcustomfields", "id,fieldname", $where);
+    $wantsms = '';
     while ($data = mysql_fetch_array($result)) {
         if ($data['id'] == $settings['wantsmsfield']) {
             $selected = 'selected="selected"';
@@ -121,6 +120,7 @@ if (!isset($tab) || $tab == "settings")
         "showorder" => array("sqltype" => "LIKE", "value" => "on")
     );
     $result = select_query("tblcustomfields", "id,fieldname", $where);
+    $gsmnumber = '';
     while ($data = mysql_fetch_array($result)) {
         if ($data['id'] == $settings['gsmnumberfield']) {
             $selected = 'selected="selected"';
@@ -131,27 +131,24 @@ if (!isset($tab) || $tab == "settings")
     }
     /* CUSTOM FIELDS FINISH HIM */
 
-    echo '
+    $class = new AktuelSms();
+    $senders = $class->getSenders();
+    $sendersoption = '';
+    foreach($senders as $sender){
+        $sendersoption .= '<option value="'.$sender['key'].'" ' . (($settings['api'] == $sender['key'])?"selected=\"selected\"":"") . '>'.$sender['value'].'</option>';
+    }
+
+    $html .= '
     <form action="" method="post">
     <input type="hidden" name="action" value="save" />
 	    <div style="text-align: left;background-color: whiteSmoke;margin: 0px;padding: 10px;">
 		    <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
 			    <tbody>
-
-                    <tr>
-					    <td class="fieldlabel" width="30%">WHMCS Path</td>
-						<td class="fieldarea"><input type="text" name="path" size="40" value="' . $settings['path'] . '"> e.g:  /home/aktuelhost/public_html/</td>
-					</tr>
 			        <tr>
 			            <td class="fieldlabel" width="30%">Sender</td>
 						<td class="fieldarea">
 						    <select name="api">
-						    <option value="Hemenposta" ' . (($settings['api'] == "Hemenposta")?"selected=\"selected\"":"") . '>Hemenposta</option>
-						        <option value="ClickAtell" ' . (($settings['api'] == "ClickAtell")?"selected=\"selected\"":"") . '>ClickAtell</option>
-                                			<option value="IletiMerkezi" ' . (($settings['api'] == "IletiMerkezi")?"selected=\"selected\"":"") . '>Ileti Merkezi</option>
-						        <option value="NetGsm" ' . (($settings['api'] == "NetGsm")?"selected=\"selected\"":"") . '>NetGsm</option>
-						        <option value="UcuzSmsAl" ' . (($settings['api'] == "UcuzSmsAl")?"selected=\"selected\"":"") . '>UcuzSmsAl</option>
-						       	<option value="Mutlucell" ' . (($settings['api'] == "Mutlucell")?"selected=\"selected\"":"") . '>Mutlucell</option>
+						        '.$sendersoption.'
 						    </select>
 						</td>
 			        </tr>
@@ -194,10 +191,11 @@ if (!isset($tab) || $tab == "settings")
 		<p align="center"><input type="submit" value="Save Changes" class="button" /></p>
     </form>
     ';
-}
-elseif ($tab == "templates")
-{
 
+    return $html;
+}
+
+function tab_templates(){
     if ($_POST['submit']) {
         $where = array("type" => array("sqltype" => "LIKE", "value" => $_GET['type']));
         $result = select_query("mod_aktuelsms_templates", "*", $where);
@@ -223,7 +221,7 @@ elseif ($tab == "templates")
         }
     }
 
-    echo '<form action="" method="post">
+    $html = '<form action="" method="post">
     <input type="hidden" name="action" value="save" />
 	    <div style="text-align: left;background-color: whiteSmoke;margin: 0px;padding: 10px;">
 		    <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
@@ -236,20 +234,20 @@ elseif ($tab == "templates")
         } else {
             $active = '';
         }
-        echo '
+        $html .= '
             <tr>
 		        <td class="fieldlabel" width="30%">' . $data['name'] . '</td>
 				<td class="fieldarea">
 				    <textarea cols="50" name="' . $data['id'] . '_template">' . $data['template'] . '</textarea>
 				</td>
 			</tr>';
-        echo '
+        $html .= '
         <tr>
             <td class="fieldlabel" width="30%" style="float:right;">Active?</td>
             <td><input type="checkbox" value="on" name="' . $data['id'] . '_active" ' . $active . '></td>
         </tr>
         ';
-        echo '
+        $html .= '
         <tr>
             <td class="fieldlabel" width="30%" style="float:right;">Variables:</td>
             <td>' . $data['variables'] . '</td>
@@ -257,7 +255,7 @@ elseif ($tab == "templates")
         ';
 
         if(!empty($data['extra'])){
-            echo '
+            $html .= '
             <tr>
 		        <td class="fieldlabel" width="30%">Extra</td>
 				<td class="fieldarea">
@@ -267,7 +265,7 @@ elseif ($tab == "templates")
             ';
         }
         if($_GET['type'] == "admin"){
-            echo '
+            $html .= '
             <tr>
 		        <td class="fieldlabel" width="30%">Admin Gsm Numbers</td>
 				<td class="fieldarea">
@@ -278,31 +276,47 @@ elseif ($tab == "templates")
             ';
         }
     }
-    echo '
+    $html .= '
     </tbody>
 			</table>
 		</div>
 		<p align="center"><input type="submit" name="submit" value="Save Changes" class="button" /></p>
     </form>';
 
+    return $html;
 }
-elseif ($tab == "messages")
-{
+
+function tab_messages(){
     if(!empty($_GET['deletesms'])){
         $smsid = (int) $_GET['deletesms'];
         $sql = "DELETE FROM mod_aktuelsms_messages WHERE id = '$smsid'";
         mysql_query($sql);
     }
-    echo '
-    <table class="datatable" width="70%" border="0" cellspacing="1" cellpadding="3">
+    $html =  '
+    <!--<script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" type="text/css">
+    <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css" type="text/css">
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".datatable").dataTable();
+        });
+    </script>-->
+
+    <div style="text-align: left;background-color: whiteSmoke;margin: 0px;padding: 10px;">
+    <table class="datatable" border="0" cellspacing="1" cellpadding="3">
+    <thead>
         <tr>
+            <th>#</th>
             <th>User</th>
             <th>Gsm No</th>
             <th>Message</th>
             <th>Date Time</th>
             <th>Status</th>
             <th width="20"></th>
-        </tr>';
+        </tr>
+    </thead>
+    <tbody>
+    ';
 
     /* Getting messages order by date desc */
     $sql = "SELECT `messages`.`id`,`messages`.`to`,`messages`.`text`,`messages`.`datetime`,`messages`.`user`,`user`.`firstname`,`user`.`lastname`
@@ -310,8 +324,11 @@ elseif ($tab == "messages")
     JOIN `tblclients` as `user` ON `messages`.`user` = `user`.`id`
     ORDER BY `messages`.`datetime` DESC";
     $result = mysql_query($sql);
+    $i = 0;
     while ($data = mysql_fetch_array($result)) {
-        echo '<tr>
+        $i++;
+        $html .=  '<tr>
+        <td>'.$i.'</td>
         <td><a href="clientssummary.php?userid='.$data['user'].'">'.$data['firstname'].' '.$data['lastname'].'</a></td>
         <td>'.$data['to'].'</td>
         <td>'.$data['text'].'</td>
@@ -319,27 +336,28 @@ elseif ($tab == "messages")
         <td><!--<div align="center"><img src="images/icons/tick.png"></div>--></td>
         <td><a href="addonmodules.php?module=aktuel_sms&tab=messages&deletesms='.$data['id'].'" title="Delete Message"><img src="images/delete.gif" width="16" height="16" border="0" alt="Delete"></a></td></tr>';
     }
-
     /* Getting messages order by date desc */
 
-    echo '
+    $html .= '
+    </tbody>
     </table>
+    </div>
     ';
 
+    return $html;
 }
-elseif($tab=="sendbulk")
-{
 
+function tab_sendbulk(){
     $result = select_query("mod_aktuelsms_settings", "*");
     $settings = mysql_fetch_array($result);
-    include_once($settings['path']."modules/admin/aktuel_sms/smsclass.php");
+//    include_once($settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
+    $html = '';
     if(!empty($_POST['client'])){
-
         $userinf = explode("_",$_POST['client']);
         $userid = $userinf[0];
         $gsmnumber = $userinf[1];
-        $send = new SendGsm();
+        $send = new AktuelSms();
         $send->sender = $settings['api'];
         $send->params = $settings['apiparams'];
         $send->gsmnumber = $gsmnumber;
@@ -347,16 +365,14 @@ elseif($tab=="sendbulk")
         $send->userid = $userid;
         $send->send();
 
-
         if(count($send->errors) > 0){
-            echo '<ul>';
+            $html .=  '<ul>';
             foreach($send->errors as $error){
-                echo "<li>$error</li>";
+                $html .=  "<li>$error</li>";
             }
-            echo '</ul>';
-
+            $html .=  '</ul>';
         }else{
-            echo 'SMS Sent to '.$gsmnumber;
+            $html .=  'SMS Sent to '.$gsmnumber;
         }
 
         if($_POST["debug"] == "ON"){
@@ -374,12 +390,13 @@ elseif($tab=="sendbulk")
 	WHERE `b`.`fieldid` = '".$settings['gsmnumberfield']."'
 	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'";
+    $clients = '';
     $result = mysql_query($userSql);
     while ($data = mysql_fetch_array($result)) {
         $clients .= '<option value="'.$data['id'].'_'.$data['gsmnumber'].'">'.$data['firstname'].' '.$data['lastname'].' (#'.$data['id'].')</option>';
     }
 
-    echo '<form action="" method="post">
+    $html .= '<form action="" method="post">
     <input type="hidden" name="action" value="save" />
 	    <div style="text-align: left;background-color: whiteSmoke;margin: 0px;padding: 10px;">
 		    <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
@@ -410,13 +427,57 @@ elseif($tab=="sendbulk")
     </form>';
 
     if(isset($debug) and $debug != null){
-
-        echo '<p><strong>Debug result:</strong><ul>';
+        $html .= '<p><strong>Debug result:</strong><ul>';
         foreach($debug as $d){
-            echo "<li>$d</li>";
+            $html .= "<li>$d</li>";
         }
-        echo '</ul></p>';
+        $html .= '</ul></p>';
     }
+
+    return $html;
 }
 
-    echo 'Plugin by <a href="http://www.aktuelsistem.com/">Aktüel Sistem ve Bilgi Teknolojileri</a>';
+function tab_update(){
+    $result = mysql_query("SELECT version FROM mod_aktuelsms_settings LIMIT 1");
+    $version = mysql_fetch_array($result);
+    $version = @$version['version'];
+    $firstver = $version;
+
+
+    //Upgrading to version 1
+    if(empty($version)){
+        $sql = "ALTER TABLE `mod_aktuelsms_settings` DROP `path` ;";
+        mysql_query($sql);
+        $sql = "ALTER TABLE `mod_aktuelsms_settings` ADD `version` INT( 3 ) NOT NULL ;";
+        mysql_query($sql);
+        $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1'";
+        mysql_query($sql);
+        $version = 1;
+    }
+
+    $class = new AktuelSms();
+    $count = $class->checkHooks();
+
+
+    $currentversion = file_get_contents("https://raw.github.com/AktuelSistem/WHMCS-SmsModule/master/version.txt");
+
+    $html = '
+    <div style="text-align: left;background-color: whiteSmoke;margin: 0px;padding: 10px;">';
+
+    if($version != $currentversion){
+        $html .= 'There is an update. Please visit <a href="https://github.com/AktuelSistem/WHMCS-SmsModule">Github page</a> and update your plugin.
+        Please see this page again after updating you add-on files.<br><br>';
+    }else{
+        $html .= 'Your add-on is up to date.<br><br>';
+    }
+
+    if($firstver != $version){
+        $html .= '<br><b>Your database updated succesfully!</b><br>';
+    }
+
+    $html .= '</div>';
+
+    return $html;
+}
+
+echo 'Plugin by <a href="http://www.aktuelsistem.com/">Aktüel Sistem ve Bilgi Teknolojileri</a>';

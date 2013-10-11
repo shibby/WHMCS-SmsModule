@@ -8,64 +8,28 @@
  * Licence: GPLv3 (http://www.gnu.org/licenses/gpl-3.0.txt)
  * */
 
-function getTemplate($name){
-    $where = array("name" => array("sqltype" => "LIKE", "value" => $name));
-    $result = select_query("mod_aktuelsms_templates", "template,active", $where);
-    $data = mysql_fetch_assoc($result);
-
-    if($data['active'] == 0){
-        return false;
-    }else{
-        return $data['template'];
-    }
-}
-
-function getTemplateExtra($name){
-    $where = array("name" => array("sqltype" => "LIKE", "value" => $name));
-    $result = select_query("mod_aktuelsms_templates", "extra,active", $where);
-    $data = mysql_fetch_assoc($result);
-
-    if($data['active'] == 0){
-        return false;
-    }else{
-        return $data['extra'];
-    }
-}
-
-function getAdminGsm($name){
-    $where = array("name" => array("sqltype" => "LIKE", "value" => $name));
-    $result = select_query("mod_aktuelsms_templates", "admingsm,active", $where);
-    $data = mysql_fetch_assoc($result);
-
-    if($data['active'] == 0){
-        return false;
-    }else{
-        return $data['admingsm'];
-    }
-}
+$path = str_replace('includes/hooks','modules/admin/aktuel_sms',dirname(__FILE__));
+include($path."/smsclass.php");
 
 function TicketAdminReply($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
 
-    $template = getTemplate('TicketAdminReply');
-
-    if ($template == false){
+    if($template['active'] == 0){
         return null;
     }
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
 	FROM `tblclients` as `a`
-	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id` 
+	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
 	JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
 	WHERE `a`.`id` IN (SELECT userid FROM tbltickets WHERE id = '".$args['ticketid']."')
-	AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-	AND `c`.`fieldid` = '".$Settings['wantsmsfield']."' 
+	AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'
 	LIMIT 1";
     $result = mysql_query($userSql);
@@ -73,85 +37,74 @@ function TicketAdminReply($args){
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
 
-        $replacefrom = array('{firstname}','{lastname}','{ticketid}','{ticketsubject}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['ticketid'],$args['subject']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $UserInformation['id'];
-        $send->send();
-
-
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['id'];
+        $class->send();
     }
 }
 
 function ClientChangePassword($args){
-    $template = getTemplate('ClientChangePassword');
-
-    if ($template == false){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
 	FROM `tblclients` as `a`
 	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
 	JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
 	WHERE `a`.`id` = '".$args['userid']."'
-	AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-	AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+	AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'
 	LIMIT 1";
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
-
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $UserInformation['id'];
-        $send->send();
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['id'];
+        $class->send();
     }
 }
 
 function ClientAdd($args){
-    $template = getTemplate('ClientAdd');
-
-    if ($template == false){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
 	FROM `tblclients` as `a`
 	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
 	JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
 	WHERE `a`.`id` = '".$args['userid']."'
-	AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-	AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+	AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'
 	LIMIT 1";
     $result = mysql_query($userSql);
@@ -159,115 +112,92 @@ function ClientAdd($args){
     $UserInformation = mysql_fetch_assoc($result);
 
     if($num_rows == 1){
-        $replacefrom = array('{firstname}','{lastname}','{email}','{password}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['email'],$args['password']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
-
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $UserInformation['id'];
-        $send->send();
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['id'];
+        $class->send();
     }
-
-    /* Admin section */
-    $data = array(
-        'firstname' => $UserInformation['firstname'],
-        'lastname' => $UserInformation['lastname'],
-        'email' => $args['email'],
-    );
-    sendToAdmin('ClientAdd_admin',$data);
-    /* Admin section */
 }
 
 function AfterRegistrarRegistration($args){
-    $template = getTemplate('AfterRegistrarRegistration');
-
-    if ($template == false){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
 	FROM `tblclients` as `a`
 	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
 	JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
 	WHERE `a`.`id` = '".$args['params']['userid']."'
-	AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-	AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+	AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'
 	LIMIT 1";
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{domain}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['sld'].".".$args['params']['tld']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $args['params']['userid'];
-        $send->send();
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $args['params']['userid'];
+        $class->send();
     }
 
-    /* Admin section */
-    $data = array(
-        'domain' => $args['params']['sld'].".".$args['params']['tld']
-    );
-    sendToAdmin('AfterRegistrarRegistration_admin',$data);
-    /* Admin section */
 }
 
 function AfterRegistrarRenewal($args){
-    $template = getTemplate('AfterRegistrarRenewal');
-
-    if ($template == false){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
 	FROM `tblclients` as `a`
 	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
 	JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
 	WHERE `a`.`id` = '".$args['params']['userid']."'
-	AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-	AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+	AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'
 	LIMIT 1";
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{domain}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['sld'].".".$args['params']['tld']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $args['params']['userid'];
-        $send->send();
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $args['params']['userid'];
+        $class->send();
     }
 
     /* Admin section */
@@ -279,213 +209,187 @@ function AfterRegistrarRenewal($args){
 }
 
 function AfterRegistrarRegistrationFailed($args){
-    $template = getTemplate('AfterRegistrarRegistrationFailed');
-
-    if ($template == false){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
 
     $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
 	FROM `tblclients` as `a`
 	JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
 	JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
 	WHERE `a`.`id` = '".$args['params']['userid']."'
-	AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-	AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+	AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+	AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
 	AND `c`.`value` = 'on'
 	LIMIT 1";
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{domain}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['sld'].".".$args['params']['tld']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $args['params']['userid'];
-        $send->send();
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $args['params']['userid'];
+        $class->send();
     }
 }
 
-function AfterModuleCreate($args){
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
-        return null;
-    }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
+function AfterModuleCreate_Hosting($args){
 
     $type = $args['params']['producttype'];
 
     if($type == "hostingaccount"){
-        $template = getTemplate('AfterModuleCreate_SharedAccount');
-    }
-
-    if ($template == false){
-        return null;
-    }
-
-    if($type=="hostingaccount"){
-        $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
-        FROM `tblclients` as `a`
-        JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
-        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
-        WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
-        AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-        AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
-        AND `c`.`value` = 'on'
-        LIMIT 1";
-        
+        $class = new AktuelSms();
+        $template = $class->getTemplateDetails(__FUNCTION__);
+        if($template['active'] == 0){
+            return null;
+        }
+        $settings = $class->getSettings();
+        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+            return null;
+        }
     }else{
         return null;
     }
+
+    $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
+    FROM `tblclients` as `a`
+    JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
+    JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
+    WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
+    AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+    AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
+    AND `c`.`value` = 'on'
+    LIMIT 1";
 
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{domain}','{username}','{password}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain'],$args['params']['username'],$args['params']['password']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $args['params']['clientsdetails']['userid'];
-        $send->send();
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $args['params']['clientsdetails']['userid'];
+        $class->send();
     }
 }
 
 function AfterModuleSuspend($args){
 
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
-        return null;
-    }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
     $type = $args['params']['producttype'];
 
     if($type == "hostingaccount"){
-        $template = getTemplate('AfterModuleSuspend');
-    }
-
-    if ($template == false){
-        return null;
-    }
-
-    if($type=="hostingaccount"){
-        $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
-        FROM `tblclients` as `a`
-        JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
-        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
-        WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
-        AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-        AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
-        AND `c`.`value` = 'on'
-        LIMIT 1";
-        
+        $class = new AktuelSms();
+        $template = $class->getTemplateDetails(__FUNCTION__);
+        if($template['active'] == 0){
+            return null;
+        }
+        $settings = $class->getSettings();
+        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+            return null;
+        }
     }else{
         return null;
     }
+
+
+    $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
+    FROM `tblclients` as `a`
+    JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
+    JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
+    WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
+    AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+    AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
+    AND `c`.`value` = 'on'
+    LIMIT 1";
 
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{domain}','{username}','{password}');
-        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain'],$args['params']['username'],$args['params']['password']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $replacefrom = explode(",",$template['variables']);
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain']);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $args['params']['clientsdetails']['userid'];
-        $send->send();
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $args['params']['clientsdetails']['userid'];
+        $class->send();
     }
 }
 function AfterModuleUnsuspend($args){
 
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
-        return null;
-    }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
     $type = $args['params']['producttype'];
 
     if($type == "hostingaccount"){
-        $template = getTemplate('AfterModuleUnsuspend');
-    }
-
-    if ($template == false){
-        return null;
-    }
-
-    if($type=="hostingaccount"){
-        $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
-        FROM `tblclients` as `a`
-        JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
-        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
-        WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
-        AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-        AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
-        AND `c`.`value` = 'on'
-        LIMIT 1";
-        
+        $class = new AktuelSms();
+        $template = $class->getTemplateDetails(__FUNCTION__);
+        if($template['active'] == 0){
+            return null;
+        }
+        $settings = $class->getSettings();
+        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+            return null;
+        }
     }else{
         return null;
     }
+
+    $userSql = "SELECT `a`.`id`,`a`.`firstname`, `a`.`lastname`, `b`.`value` as `gsmnumber`
+    FROM `tblclients` as `a`
+    JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
+    JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
+    WHERE `a`.`id`  = '".$args['params']['clientsdetails']['userid']."'
+    AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+    AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
+    AND `c`.`value` = 'on'
+    LIMIT 1";
 
     $result = mysql_query($userSql);
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{domain}','{username}','{password}');
-        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain'],$args['params']['username'],$args['params']['password']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
-
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $args['params']['clientsdetails']['userid'];
-        $send->send();
+        $replacefrom = explode(",",$template['variables']);
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain']);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $args['params']['clientsdetails']['userid'];
+        $class->send();
     }
 }
 
 function AcceptOrder_SMS($args){
 
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
-    $template = getTemplate('AcceptOrder');
-
-    if ($template == false){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
 
@@ -494,8 +398,8 @@ function AcceptOrder_SMS($args){
         JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
         JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
         WHERE `a`.`id` IN (SELECT userid FROM tblorders WHERE id = '".$args['orderid']."')
-        AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-        AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+        AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+        AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
         AND `c`.`value` = 'on'
         LIMIT 1";
 
@@ -503,36 +407,33 @@ function AcceptOrder_SMS($args){
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{orderid}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['orderid']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $UserInformation['id'];
-        $send->send();
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['id'];
+        $class->send();
     }
 }
 
 function DomainRenewalNotice($args){
 
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
 
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
-    $template = getTemplate('DomainRenewalNotice');
-
-    if ($template == false){
-        return null;
-    }
-
-    $extra = getTemplateExtra('DomainRenewalNotice');
+    $extra = $template['extra'];
     $sqlDomain = "SELECT  `userid` ,  `domain` ,  `expirydate`
            FROM  `tbldomains`
            WHERE  `status` =  'Active'";
@@ -547,8 +448,8 @@ function DomainRenewalNotice($args){
             JOIN `tblcustomfieldsvalues` as `b` ON `b`.`relid` = `a`.`id`
             JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
             WHERE `a`.`id` = '".$data['userid']."'
-            AND `b`.`fieldid` = '".$Settings['gsmnumberfield']."'
-            AND `c`.`fieldid` = '".$Settings['wantsmsfield']."'
+            AND `b`.`fieldid` = '".$settings['gsmnumberfield']."'
+            AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
             AND `c`.`value` = 'on'
             LIMIT 1";
 
@@ -556,17 +457,16 @@ function DomainRenewalNotice($args){
             $num_rows = mysql_num_rows($result);
             if($num_rows == 1){
                 $UserInformation = mysql_fetch_assoc($result);
-                $replacefrom = array('{firstname}','{lastname}','{domain}','{x}','{expirydate}');
-                $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$data['domain'],$extra,$data['expirydate']);
-                $Message = str_replace($replacefrom,$replaceto,$template);
+                $replacefrom = explode(",",$template['variables']);
+                $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$data['domain'],$data['expirydate'],$extra);
+                $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-                $send = new SendGsm();
-                $send->sender = $Settings['api'];
-                $send->params = $Settings['apiparams'];
-                $send->gsmnumber = $UserInformation['gsmnumber'];
-                $send->message = $Message;
-                $send->userid = $UserInformation['userid'];
-                $send->send();
+                $class->sender = $settings['api'];
+                $class->params = $settings['apiparams'];
+                $class->gsmnumber = $UserInformation['gsmnumber'];
+                $class->message = $message;
+                $class->userid = $UserInformation['userid'];
+                $class->send();
             }
         }
     }
@@ -574,67 +474,13 @@ function DomainRenewalNotice($args){
 
 function InvoiceCreated($args){
 
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
         return null;
     }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
-    $template = getTemplate('InvoiceCreated');
-
-    if ($template == false){
-        return null;
-    }
-
-    $userSql = "
-        SELECT a.duedate,b.id as userid,b.firstname,b.lastname,`c`.`value` as `gsmnumber` FROM `tblinvoices` as `a`
-        JOIN tblclients as b ON b.id = a.userid
-        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
-        JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
-        WHERE a.id = '".$args['invoiceid']."'
-        AND `c`.`fieldid` = '".$Settings['gsmnumberfield']."'
-        AND `d`.`fieldid` = '".$Settings['wantsmsfield']."'
-        AND `d`.`value` = 'on'
-        LIMIT 1
-    ";
-
-    $result = mysql_query($userSql);
-    $num_rows = mysql_num_rows($result);
-    if($num_rows == 1){
-        $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{duedate}');
-        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$UserInformation['duedate']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
-
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $UserInformation['userid'];
-        $send->send();
-    }
-}
-
-function InvoicePaymentReminder($args){
-
-    $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-    if(!$Settings['api'] || !$Settings['apiparams']){
-        return null;
-    }
-
-    include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
-
-    if($args['type'] == "reminder")
-        $template = getTemplate('InvoicePaymentReminder');
-    elseif($args['type'] == "firstoverdue")
-        $template = getTemplate('InvoicePaymentReminder_FirstOverdue');
-    else
-        $template = false;
-
-    if ($template == false){
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
         return null;
     }
 
@@ -644,8 +490,8 @@ function InvoicePaymentReminder($args){
         JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
         JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
         WHERE a.id = '".$args['invoiceid']."'
-        AND `c`.`fieldid` = '".$Settings['gsmnumberfield']."'
-        AND `d`.`fieldid` = '".$Settings['wantsmsfield']."'
+        AND `c`.`fieldid` = '".$settings['gsmnumberfield']."'
+        AND `d`.`fieldid` = '".$settings['wantsmsfield']."'
         AND `d`.`value` = 'on'
         LIMIT 1
     ";
@@ -654,85 +500,300 @@ function InvoicePaymentReminder($args){
     $num_rows = mysql_num_rows($result);
     if($num_rows == 1){
         $UserInformation = mysql_fetch_assoc($result);
-        $replacefrom = array('{firstname}','{lastname}','{duedate}');
+        $replacefrom = explode(",",$template['variables']);
         $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$UserInformation['duedate']);
-        $Message = str_replace($replacefrom,$replaceto,$template);
-
-        $send = new SendGsm();
-        $send->sender = $Settings['api'];
-        $send->params = $Settings['apiparams'];
-        $send->gsmnumber = $UserInformation['gsmnumber'];
-        $send->message = $Message;
-        $send->userid = $UserInformation['userid'];
-        $send->send();
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
+        
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['userid'];
+        $class->send();
     }
 }
 
-function sendToAdmin($template,$args){
-    $template = getTemplate($template);
+function InvoicePaymentReminder_Reminder($args){
 
-    if ($template == false){
-        return null;
-    }
-
-    $admingsm = getAdminGsm($template);
-    $admingsm = explode(',',$admingsm);
-    print_r($admingsm);
-    if(isset($admingsm[0]) && !empty($admingsm[0])){
-        $Settings = mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
-        print_r($Settings);
-        if(!$Settings['api'] || !$Settings['apiparams']){
+    if($args['type'] == "reminder"){
+        $class = new AktuelSms();
+        $template = $class->getTemplateDetails(__FUNCTION__);
+        if($template['active'] == 0){
             return null;
         }
-        include_once($Settings['path']."modules/admin/aktuel_sms/smsclass.php");
-
-        $replacefrom = "";
-        $replaceto = "";
-        foreach($args as $k=>$a){
-            $replacefrom[] = '{'.$k.'}';
-            $replaceto[] = $a;
+        $settings = $class->getSettings();
+        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+            return null;
         }
-        print_r($replacefrom);
-        print_r($replaceto);
-        $Message = str_replace($replacefrom,$replaceto,$template);
-        print_r($Message);
-        $send = new SendGsm();
-        foreach($admingsm as $gsm){
-
-            print_r($gsm);
-            $send->sender = $Settings['api'];
-            $send->params = $Settings['apiparams'];
-            $send->gsmnumber = $gsm;
-            $send->message = $Message;
-            $send->userid = 0;
-            $send->send();
-        }
+    }else{
+        return false;
     }
-    die("ee");
+
+    $userSql = "
+        SELECT a.duedate,b.id as userid,b.firstname,b.lastname,`c`.`value` as `gsmnumber` FROM `tblinvoices` as `a`
+        JOIN tblclients as b ON b.id = a.userid
+        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
+        JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
+        WHERE a.id = '".$args['invoiceid']."'
+        AND `c`.`fieldid` = '".$settings['gsmnumberfield']."'
+        AND `d`.`fieldid` = '".$settings['wantsmsfield']."'
+        AND `d`.`value` = 'on'
+        LIMIT 1
+    ";
+
+    $result = mysql_query($userSql);
+    $num_rows = mysql_num_rows($result);
+    if($num_rows == 1){
+        $UserInformation = mysql_fetch_assoc($result);
+        $replacefrom = explode(",",$template['variables']);
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$UserInformation['duedate']);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['userid'];
+        $class->send();
+    }
 }
 
-add_hook("ClientChangePassword", 1, "ClientChangePassword", "");
-add_hook("TicketAdminReply", 1, "TicketAdminReply", "");
-add_hook("ClientAdd", 1, "ClientAdd", "");
+function InvoicePaymentReminder_Firstoverdue($args){
 
-#Domain
-add_hook("AfterRegistrarRegistration", 1, "AfterRegistrarRegistration", "");
-add_hook("AfterRegistrarRenewal", 1, "AfterRegistrarRenewal", "");
-//add_hook( "AfterRegistrarRegistrationFailed", 1, "AfterRegistrarRegistrationFailed", "");
+    if($args['type'] == "firstoverdue"){
+        $class = new AktuelSms();
+        $template = $class->getTemplateDetails(__FUNCTION__);
+        if($template['active'] == 0){
+            return null;
+        }
+        $settings = $class->getSettings();
+        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+            return null;
+        }
+    }else{
+        return false;
+    }
 
-#Product
-add_hook("AfterModuleCreate", 1, "AfterModuleCreate", "");
-add_hook("AfterModuleSuspend", 1, "AfterModuleSuspend", "");
-add_hook("AfterModuleUnsuspend", 1, "AfterModuleUnsuspend", "");
+    $userSql = "
+        SELECT a.duedate,b.id as userid,b.firstname,b.lastname,`c`.`value` as `gsmnumber` FROM `tblinvoices` as `a`
+        JOIN tblclients as b ON b.id = a.userid
+        JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
+        JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
+        WHERE a.id = '".$args['invoiceid']."'
+        AND `c`.`fieldid` = '".$settings['gsmnumberfield']."'
+        AND `d`.`fieldid` = '".$settings['wantsmsfield']."'
+        AND `d`.`value` = 'on'
+        LIMIT 1
+    ";
 
-#Order
-add_hook("AcceptOrder", 1, "AcceptOrder_SMS", "");
+    $result = mysql_query($userSql);
+    $num_rows = mysql_num_rows($result);
+    if($num_rows == 1){
+        $UserInformation = mysql_fetch_assoc($result);
+        $replacefrom = explode(",",$template['variables']);
+        $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$UserInformation['duedate']);
+        $message = str_replace($replacefrom,$replaceto,$template['template']);
 
-#Invoice
-//add_hook("InvoiceCreationPreEmail", 1, "InvoiceCreationPreEmail", ""); # invoiceid
-add_hook("InvoicePaymentReminder", 1, "InvoicePaymentReminder", ""); # invoiceid - type: reminder, firstoverdue, secondoverdue, thirdoverdue
-add_hook("InvoiceCreated", 1, "InvoiceCreated", "");
+        $class->sender = $settings['api'];
+        $class->params = $settings['apiparams'];
+        $class->gsmnumber = $UserInformation['gsmnumber'];
+        $class->message = $message;
+        $class->userid = $UserInformation['userid'];
+        $class->send();
+    }
+}
 
-#AktuelSms Cron
-add_hook("DailyCronJob", 1, "DomainRenewalNotice", "");
-// Product Renewal Notice
+function ClientAdd_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $template['template'];
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+
+function AfterRegistrarRegistration_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    $replacefrom = explode(",",$template['variables']);
+    $replaceto = array($args['params']['sld'].".".$args['params']['tld']);
+    $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $message;
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+
+function AfterRegistrarRenewal_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    $replacefrom = explode(",",$template['variables']);
+    $replaceto = array($args['params']['sld'].".".$args['params']['tld']);
+    $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $message;
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+function AfterRegistrarRegistrationFailed_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    $replacefrom = explode(",",$template['variables']);
+    $replaceto = array($args['params']['sld'].".".$args['params']['tld']);
+    $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $message;
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+function AfterRegistrarRenewalFailed_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    $replacefrom = explode(",",$template['variables']);
+    $replaceto = array($args['params']['sld'].".".$args['params']['tld']);
+    $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $message;
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+function TicketOpen_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    $replacefrom = explode(",",$template['variables']);
+    $replaceto = array($args['subject']);
+    $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $message;
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+function TicketUserReply_admin($args){
+    $class = new AktuelSms();
+    $template = $class->getTemplateDetails(__FUNCTION__);
+    if($template['active'] == 0){
+        return null;
+    }
+    $settings = $class->getSettings();
+    if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        return null;
+    }
+    $admingsm = explode(",",$template['admingsm']);
+
+    $replacefrom = explode(",",$template['variables']);
+    $replaceto = array($args['subject']);
+    $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+    foreach($admingsm as $gsm){
+        if(!empty($gsm)){
+            $class->sender = $settings['api'];
+            $class->params = $settings['apiparams'];
+            $class->gsmnumber = trim($gsm);
+            $class->message = $message;
+            $class->userid = 0;
+            $class->send();
+        }
+    }
+}
+
+$class = new AktuelSms();
+$hooks = $class->getHooks();
+
+foreach($hooks as $hook){
+    add_hook($hook['hook'], 1, $hook['function'], "");
+}

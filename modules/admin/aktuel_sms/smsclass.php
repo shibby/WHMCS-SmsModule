@@ -8,7 +8,7 @@
  * Licence: GPLv3 (http://www.gnu.org/licenses/gpl-3.0.txt)
  * */
 
-class SendGsm{
+class AktuelSms{
     var $sender;
 
     var $params;
@@ -37,7 +37,36 @@ class SendGsm{
         $this->$sender_function();
     }
 
-     function SendMutlucell(){
+    function getSenders(){
+        return array(
+            array(
+                'key' => 'ClickAtell',
+                'value' => 'ClickAtell'
+            ),
+            array(
+                'key' => 'NetGsm',
+                'value' => 'NetGsm'
+            ),
+            array(
+                'key' => 'UcuzSmsAl',
+                'value' => 'UcuzSmsAl'
+            ),
+            array(
+                'key' => 'Mutlucell',
+                'value' => 'Mutlucell'
+            ),
+            array(
+                'key' => 'IletiMerkezi',
+                'value' => 'İleti Merkezi'
+            ),
+            array(
+                'key' => 'Hemenposta',
+                'value' => 'Hemenposta'
+            ),
+        );
+    }
+
+    function SendMutlucell(){
         $params = $this->getParams();
 		// XML - formatında data
 		$xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
@@ -94,7 +123,7 @@ class SendGsm{
 	endif;
     }
     
-     function SendHemenposta(){
+    function SendHemenposta(){
         $params = $this->getParams();
 
 		$postUrl = "http://sms.modexi.com/service/sendxml";
@@ -164,7 +193,6 @@ class SendGsm{
             $this->addLog("Message sent failed. Authentication Error: $ret[0]");
             $this->addError("Authentication failed. $ret[0] ");
         }
-
     }
 
     function SendIletiMerkezi() {
@@ -199,6 +227,7 @@ class SendGsm{
 
         $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$params->user&password=$params->pass&gsmno=$this->gsmnumber&message=".urlencode($this->message)."&msgheader=$params->senderid";
         $result = file_get_contents($url);
+//        $result = "00 01";
         $return = $result;
         $this->addLog("Result from server: ".$result);
 
@@ -305,6 +334,233 @@ class SendGsm{
 
     function addLog($log){
         $this->logs[] = $log;
+    }
+
+    function getHooks(){
+
+        $hooks[] = array(
+            'hook' => 'ClientChangePassword',
+            'function' => 'ClientChangePassword',
+            'type' => 'client',
+            'extra' => '',
+			'variables' => '{firstname},{lastname}',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, sifreniz degistirildi. Eger bu islemi siz yapmadiysaniz lutfen bizimle iletisime gecin.',
+        );
+        $hooks[] = array(
+            'hook' => 'TicketAdminReply',
+            'function' => 'TicketAdminReply',
+            'type' => 'client',
+            'extra' => '',
+            'variables' => '{firstname},{lastname},{ticketsubject}',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, ({ticketsubject}) konu baslikli destek talebiniz yanitlandi.',
+        );
+        $hooks[] = array(
+            'hook' => 'ClientAdd',
+            'function' => 'ClientAdd',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, AktuelHost a kayit oldugunuz icin tesekkur ederiz. Email: {email} Sifre: {password}',
+			'variables' => '{firstname},{lastname},{email},{password}'
+        );
+        #Domain
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRegistration',
+            'function' => 'AfterRegistrarRegistration',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, alan adiniz basariyla kayit edildi. ({domain})',
+			'variables' => '{firstname},{lastname},{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRenewal',
+            'function' => 'AfterRegistrarRenewal',
+            'type' => 'client',
+            'extra' => '',
+            'defaultmessage' => 'Sayin {firstname} {lastname}, alan adiniz basariyla yenilendi. ({domain})',
+            'variables' => '{firstname},{lastname},{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRegistrationFailed',
+            'function' => 'AfterRegistrarRegistrationFailed',
+            'type' => 'client',
+            'extra' => '',
+            'defaultmessage' => 'Sayin {firstname} {lastname}, alan adiniz kayit edilemedi. En kisa surede lutfen bizimle iletisime gecin ({domain})',
+            'variables' => '{firstname},{lastname},{domain}'
+        );
+        #Product
+        $hooks[] = array(
+            'hook' => 'AfterModuleCreate',
+            'function' => 'AfterModuleCreate_Hosting',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, {domain} icin hosting hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}',
+			'variables' => '{firstname}, {lastname}, {domain}, {username}, {password}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterModuleCreate',
+            'function' => 'AfterModuleCreate_Reseller',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, {domain} icin hosting hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}',
+			'variables' => '{firstname}, {lastname}, {domain}, {username}, {password}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterModuleSuspend',
+            'function' => 'AfterModuleSuspend',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, hizmetiniz duraklatildi. ({domain})',
+			'variables' => '{firstname},{lastname},{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterModuleUnsuspend',
+            'function' => 'AfterModuleUnsuspend',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, hizmetiniz tekrar aktiflestirildi. ({domain})',
+			'variables' => '{firstname},{lastname},{domain}'
+        );
+        #Order
+        $hooks[] = array(
+            'hook' => 'AcceptOrder',
+            'function' => 'AcceptOrder_SMS',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, {orderid} numarali siparisiniz onaylanmistir. ',
+			'variables' => '{firstname},{lastname},{orderid}'
+        );
+        #Invoice
+        $hooks[] = array(
+            'hook' => 'InvoicePaymentReminder',
+            'function' => 'InvoicePaymentReminder_Reminder',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com',
+			'variables' => '{firstname}, {lastname}, {duedate}'
+        );
+        $hooks[] = array(
+            'hook' => 'InvoicePaymentReminder',
+            'function' => 'InvoicePaymentReminder_Firstoverdue',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir faturaniz bulunmaktadir. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com',
+			'variables' => '{firstname}, {lastname}, {duedate}'
+        );
+        $hooks[] = array(
+            'hook' => 'InvoiceCreated',
+            'function' => 'InvoiceCreated',
+            'type' => 'client',
+            'extra' => '',
+			'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir fatura olusturulmustur. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com',
+			'variables' => '{firstname}, {lastname}, {duedate}'
+        );
+        #Cron
+        $hooks[] = array(
+            'hook' => 'DailyCronJob',
+            'function' => 'DomainRenewalNotice',
+            'type' => 'client',
+            'extra' => '15',
+            'defaultmessage' => 'Sayin {firstname} {lastname}, {domain} alanadiniz {expirydate}({x} gun sonra) tarihinde sona erecektir. Yenilemek icin sitemizi ziyaret edin. www.aktuelhost.com',
+			'variables' => '{firstname}, {lastname}, {domain},{expirydate},{x}'
+        );
+
+        #Admin
+        $hooks[] = array(
+            'hook' => 'ClientAdd',
+            'function' => 'ClientAdd_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Sitenize yeni musteri kayit oldu.',
+			'variables' => ''
+        );
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRegistration',
+            'function' => 'AfterRegistrarRegistration_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Yeni domain kayit edildi. {domain}',
+            'variables' => '{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRenewal',
+            'function' => 'AfterRegistrarRenewal_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Domain yenilendi. {domain}',
+            'variables' => '{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRegistrationFailed',
+            'function' => 'AfterRegistrarRegistrationFailed_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Domain kayit edilirken hata olustu. {domain}',
+            'variables' => '{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'AfterRegistrarRenewalFailed',
+            'function' => 'AfterRegistrarRenewalFailed_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Domain yenilenirken hata olustu. {domain}',
+            'variables' => '{domain}'
+        );
+        $hooks[] = array(
+            'hook' => 'TicketOpen',
+            'function' => 'TicketOpen_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Yeni bir ticket acildi. ({subject})',
+            'variables' => '{subject}'
+        );
+        $hooks[] = array(
+            'hook' => 'TicketUserReply',
+            'function' => 'TicketUserReply_admin',
+            'type' => 'admin',
+            'extra' => '',
+            'defaultmessage' => 'Bir ticket musteri tarafindan guncellendi. ({subject})',
+            'variables' => '{subject}'
+        );
+
+        return $hooks;
+    }
+
+    function checkHooks($hooks = null){
+        if($hooks == null){
+            $hooks = $this->getHooks();
+        }
+
+        $i=0;
+        foreach($hooks as $hook){
+            $sql = "SELECT `id` FROM `mod_aktuelsms_templates` WHERE `name` = '".$hook['function']."' AND `type` = '".$hook['type']."' LIMIT 1";
+            $result = mysql_query($sql);
+            $num_rows = mysql_num_rows($result);
+            if($num_rows == 0){
+                $values = array(
+                    "name" => $hook['function'],
+                    "type" => $hook['type'],
+                    "template" => $hook['defaultmessage'],
+                    "variables" => $hook['variables'],
+                    "extra" => $hook['extra'],
+                    "active" => 1
+                );
+                insert_query("mod_aktuelsms_templates", $values);
+                $i++;
+            }
+        }
+        return $i;
+    }
+
+    function getTemplateDetails($template = null){
+        $where = array("name" => array("sqltype" => "LIKE", "value" => $template));
+        $result = select_query("mod_aktuelsms_templates", "*", $where);
+        $data = mysql_fetch_assoc($result);
+
+        return $data;
+    }
+
+    function getSettings(){
+        return mysql_fetch_assoc(mysql_query("SELECT * FROM `mod_aktuelsms_settings` LIMIT 1"));
     }
 
 }

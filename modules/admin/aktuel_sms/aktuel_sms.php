@@ -12,6 +12,16 @@ if (!defined("WHMCS")) {
     exit("This file cannot be accessed directly");
 }
 
+function aktuel_sms_config() {
+    $configarray = array(
+        "name" => "Aktuel Sms",
+        "description" => "WHMCS Sms Addon. You can see details from: https://github.com/AktuelSistem/WHMCS-SmsModule",
+        "version" => "1",
+        "author" => "Aktüel Sistem ve Bilgi Teknolojileri"
+    );
+    return $configarray;
+}
+
 function aktuel_sms_activate() {
 
     $sql = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) NOT NULL,`text` text NOT NULL,`msgid` varchar(50) NOT NULL,`status` varchar(10) NOT NULL,`user` int(11) NOT NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
@@ -35,9 +45,9 @@ function aktuel_sms_deactivate() {
 
     $sql = "DROP TABLE `mod_aktuelsms_templates`";
     mysql_query($sql);
-   $sql = "DROP TABLE `mod_aktuelsms_settings`";
+    $sql = "DROP TABLE `mod_aktuelsms_settings`";
     mysql_query($sql);
-   $sql = "DROP TABLE `mod_aktuelsms_messages`";
+    $sql = "DROP TABLE `mod_aktuelsms_messages`";
     mysql_query($sql);
 
     return array('status'=>'success','description'=>'Module deactivated succesfully.');

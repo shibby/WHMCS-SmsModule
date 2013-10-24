@@ -465,6 +465,10 @@ function tab_update(){
         $version = 1;
     }
 
+    $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1.0.1'";
+    mysql_query($sql);
+    $version = "1.0.1";
+
     $class = new AktuelSms();
     $count = $class->checkHooks();
 

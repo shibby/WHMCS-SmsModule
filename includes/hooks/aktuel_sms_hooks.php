@@ -200,12 +200,6 @@ function AfterRegistrarRenewal($args){
         $class->send();
     }
 
-    /* Admin section */
-    $data = array(
-        'domain' => $args['params']['sld'].".".$args['params']['tld']
-    );
-    sendToAdmin('AfterRegistrarRenewal_admin',$data);
-    /* Admin section */
 }
 
 function AfterRegistrarRegistrationFailed($args){

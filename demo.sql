@@ -2,8 +2,8 @@ DROP TABLE mod_aktuelsms_messages;
 CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) NOT NULL,`text` text NOT NULL,`msgid` varchar(50) NOT NULL,`status` varchar(10) NOT NULL,`user` int(11) NOT NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 DROP TABLE mod_aktuelsms_settings;
-CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(100) NOT NULL,`wantsmsfield` int(11) NOT NULL,`gsmnumberfield` int(11) NOT NULL,`path` varchar(100) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;
-INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`, `path`) VALUES ('', '', 0, 0, '');
+CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(100) NOT NULL,`wantsmsfield` int(11) NOT NULL,`gsmnumberfield` int(11) NOT NULL,`version` varchar(6) NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;
+INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`, `version`) VALUES ('', '', 0, 0, '');
 
 DROP TABLE mod_aktuelsms_templates;
 CREATE TABLE IF NOT EXISTS `mod_aktuelsms_templates` (

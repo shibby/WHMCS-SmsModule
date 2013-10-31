@@ -453,12 +453,14 @@ function tab_update(){
     $version = @$version['version'];
     $firstver = $version;
 
+    $query = "ALTER TABLE `mod_aktuelsms_settings` MODIFY `version` VARCHAR(6) NOT NULL ;";
+    mysql_query($query);
 
     //Upgrading to version 1
     if(empty($version)){
         $sql = "ALTER TABLE `mod_aktuelsms_settings` DROP `path` ;";
         mysql_query($sql);
-        $sql = "ALTER TABLE `mod_aktuelsms_settings` ADD `version` INT( 3 ) NOT NULL ;";
+        $sql = "ALTER TABLE `mod_aktuelsms_settings` ADD `version` VARCHAR(6) NOT NULL ;";
         mysql_query($sql);
         $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1'";
         mysql_query($sql);

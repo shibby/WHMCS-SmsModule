@@ -46,7 +46,25 @@ class clickatell extends AktuelSms {
     }
 
     function balance(){
-        return null;
+		$params = $this->getParams();
+        if($params->user && $params->pass){
+			$url = 	"http://api.clickatell.com/http/getbalance?api_id=$params->apiid&user=$params->user&password=$params->pass";
+            $result = file_get_contents($url);
+            $result = explode(" ",$result);
+			$cvp = $result[1];
+        $h0 = 001;
+        $h1 = 002;
+		if($cvp == $h0):
+			return ("Kimlik doğrulama bilgileri hatalı.Hata Kodu: $cvp");
+		elseif($cvp == $h1):	
+			return ("Yetkilendirme hatası, bilinmeyen kullanıcı adı veya hatalı parola. Hata Kodu: $cvp");
+		else:
+			return $cvp;
+		endif;	
+            
+        }else{
+            return null;
+        }
     }
 
     function report($msgid){

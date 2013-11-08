@@ -14,7 +14,7 @@ function aktuel_sms_config() {
     $configarray = array(
         "name" => "Aktuel Sms",
         "description" => "WHMCS Sms Addon. You can see details from: https://github.com/AktuelSistem/WHMCS-SmsModule",
-        "version" => "1.1",
+        "version" => "1.1.1",
         "author" => "Aktüel Sistem ve Bilgi Teknolojileri",
 		"language" => "turkish",
     );
@@ -26,7 +26,7 @@ function aktuel_sms_activate() {
     $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) NULL,`text` text NULL,`msgid` varchar(50) NULL,`status` varchar(10) NULL,`errors` TEXT NULL,`logs` TEXT NULL,`user` int(11) NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
 	$result = mysql_query($query);
 
-    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(100) NOT NULL,`wantsmsfield` int(11) NULL,`gsmnumberfield` int(11) NULL,`version` varchar(6) NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;";
+    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(500) NOT NULL,`wantsmsfield` int(11) NULL,`gsmnumberfield` int(11) NULL,`version` varchar(6) NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;";
 	$result = mysql_query($query);
 
     $query = "INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`, `version`) VALUES ('', '', 0, 0, '1.0.1');";
@@ -66,6 +66,9 @@ function aktuel_sms_upgrade($vars) {
             $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1.1'";
             mysql_query($sql);
             $sql = "ALTER TABLE `mod_aktuelsms_messages` ADD `errors` TEXT NULL AFTER `status` ;ALTER TABLE `mod_aktuelsms_templates` ADD `description` TEXT NULL ;ALTER TABLE `mod_aktuelsms_messages` ADD `logs` TEXT NULL AFTER `errors` ;";
+            mysql_query($sql);
+        case "1.1";
+            $sql = "ALTER TABLE `mod_aktuelsms_settings` CHANGE `apiparams` `apiparams` VARCHAR( 500 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;";
             mysql_query($sql);
     }
 
@@ -110,7 +113,6 @@ function aktuel_sms_output($vars){
         $settings = $class->getSettings();
         $apiparams = json_decode($settings['apiparams']);
 
-        $html = '';
         /* CUSTOM FIELDS START */
         $where = array(
             "fieldtype" => array("sqltype" => "LIKE", "value" => "tickbox"),

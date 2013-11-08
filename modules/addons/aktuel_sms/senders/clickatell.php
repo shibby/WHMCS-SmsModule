@@ -47,21 +47,22 @@ class clickatell extends AktuelSms {
 
     function balance(){
 		$params = $this->getParams();
-        if($params->user && $params->pass){
+        if($params->user && $params->pass &&$params->apiid){
 			$url = 	"http://api.clickatell.com/http/getbalance?api_id=$params->apiid&user=$params->user&password=$params->pass";
             $result = file_get_contents($url);
             $result = explode(" ",$result);
 			$cvp = $result[1];
-        $h0 = 001;
-        $h1 = 002;
-		if($cvp == $h0):
-			return ("Kimlik doğrulama bilgileri hatalı.Hata Kodu: $cvp");
-		elseif($cvp == $h1):	
-			return ("Yetkilendirme hatası, bilinmeyen kullanıcı adı veya hatalı parola. Hata Kodu: $cvp");
-		else:
-			return $cvp;
-		endif;	
-            
+            $h0 = 001;
+            $h1 = 002;
+            if($cvp == $h0){
+//                return ("Kimlik doğrulama bilgileri hatalı.Hata Kodu: $cvp");
+                return null;
+            }elseif($cvp == $h1){
+//              return ("Yetkilendirme hatası, bilinmeyen kullanıcı adı veya hatalı parola. Hata Kodu: $cvp");
+                return null;
+            }else{
+                return $cvp;
+            }
         }else{
             return null;
         }

@@ -71,29 +71,31 @@ class mutlucell extends AktuelSms {
     function balance(){
 		$params = $this->getParams();
 		if($params->user && $params->pass){
-		$xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
-		'<smskredi ka="'.$params->user.'" pwd="'.$params->pass.'" />';
-		$URL = "https://smsgw.mutlucell.com/smsgw-ws/gtcrdtex"; 
-                 $ch = curl_init($URL);
-                 curl_setopt($ch, CURLOPT_MUTE, 1);
-                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                 curl_setopt($ch, CURLOPT_POST, 1);
-                 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
-                 curl_setopt($ch, CURLOPT_POSTFIELDS, "$xml_data");
-                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                 $output = curl_exec($ch);
-                 curl_close($ch);
-        $h0 = 20;
-        $h3 = 23;
-		if($output == $h0):
-			return ("Post edilen xml eksik veya hatalı.Hata Kodu: $output");
-		elseif($output == $h3):	
-			return ("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $output");
-		else:
-			return $output;
-		endif;
-		
+            $xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
+            '<smskredi ka="'.$params->user.'" pwd="'.$params->pass.'" />';
+            $URL = "https://smsgw.mutlucell.com/smsgw-ws/gtcrdtex";
+            $ch = curl_init($URL);
+            curl_setopt($ch, CURLOPT_MUTE, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, "$xml_data");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
+
+            $h0 = 20;
+            $h3 = 23;
+            if($output == $h0){
+//                return ("Post edilen xml eksik veya hatalı.Hata Kodu: $output");
+                return null;
+            }elseif($output == $h3){
+//                return ("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $output");
+                return null;
+            }else{
+                return $output;
+            }
 		}else{		
         	return null;
 		}

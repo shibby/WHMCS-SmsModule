@@ -77,9 +77,10 @@ function aktuel_sms_upgrade($vars) {
 }
 
 function aktuel_sms_output($vars){
-    $modulelink = $vars['modulelink'];
-    $version = $vars['version'];
+	$modulelink = $vars['modulelink'];
+	$version = $vars['version'];
 	$LANG = $vars['_lang'];
+	putenv("TZ=Europe/Istanbul");
 
     $class = new AktuelSms();
 	

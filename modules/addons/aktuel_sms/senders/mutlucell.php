@@ -1,4 +1,5 @@
 <?php
+
 class mutlucell extends AktuelSms {
 
     function __construct($message,$gsmnumber){
@@ -17,6 +18,7 @@ class mutlucell extends AktuelSms {
             '</mesaj>'.
             '</smspack>';
         $URL = "https://smsgw.mutlucell.com/smsgw-ws/sndblkex";
+
         $ch = curl_init($URL);
         curl_setopt($ch, CURLOPT_MUTE, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -29,51 +31,45 @@ class mutlucell extends AktuelSms {
         curl_close($ch);
         $return = $result;
         $log[] = ("Geri Dönüş Kodu: ".$result);
-        $h0 = 20;
-        $h1 = 21;
-        $h2 = 22;
-        $h3 = 23;
-        $h4 = 24;
-        $h5 = 25;
-        $h6 = 30;
-        if($return == $h0):
-            $log[]= ("Post edilen xml eksik veya hatalı.Hata Kodu: $return");
-            $error[] = ("Post edilen xml eksik veya hatalı.Hata Kodu: $return");
-        elseif($return == $h1):
-            $log[] = ("Kullanılan originatöre sahip değilsiniz.Hata Kodu: $return");
-            $error[] = ("Kullanılan originatöre sahip değilsiniz.Hata Kodu: $return");
-        elseif($return == $h2):
-            $log[] = ("Kontörünüz yetersiz.Hata Kodu: $return");
-            $error[] = ("Kontörünüz yetersiz.Hata Kodu: $return");
-        elseif($return == $h3):
-            $log[] = ("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $return");
-            $error[] = ("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $return");
-        elseif($return == $h4):
-            $log[] = ("Şu anda size ait başka bir işlem aktif.Hata Kodu: $return");
-            $error[] = ("Şu anda size ait başka bir işlem aktif.Hata Kodu: $return");
-        elseif($return == $h5):
-            $log[] = ("Bu hatayı alırsanız, işlemi 1-2 dk sonra tekrar deneyin.Hata Kodu: $return");
-            $error[] = ("Bu hatayı alırsanız, işlemi 1-2 dk sonra tekrar deneyin.Hata Kodu: $return");
-        elseif($return == $h6):
-            $log[] = ("Hesap Aktivasyonu sağlanmamış.Hata Kodu: $return");
-            $error[] = ("Hesap Aktivasyonu sağlanmamış.Hata Kodu: $return");
-        else:
-            $log[] = ("Mesaj Başarıyla Gönderildi.");
-        endif;
+		
+        $result = explode(" ", $result);
+		if($result[0] == 20){
+			$log[]= ("Post edilen xml eksik veya hatalı.");
+            $error[] = ("Post edilen xml eksik veya hatalı.");
+		}elseif($result[0] == 21){
+			$log[] = ("Kullanılan originatöre sahip değilsiniz.");
+            $error[] = ("Kullanılan originatöre sahip değilsiniz.");
+		}elseif($result[0] == 22){
+            $log[] = ("Kontörünüz yetersiz.");
+            $error[] = ("Kontörünüz yetersiz.");			
+		}elseif($result[0] == 23){
+            $log[] = ("Kullanıcı adı ya da parolanız hatalı.");
+            $error[] = ("Kullanıcı adı ya da parolanız hatalı.");			
+		}elseif($result[0] == 24){
+			$log[] = ("Şu anda size ait başka bir işlem aktif.");
+            $error[] = ("Şu anda size ait başka bir işlem aktif.");
+		}elseif($result[0] == 25){
+            $log[] = ("Bu hatayı alırsanız, işlemi 1-2 dk sonra tekrar deneyin.");
+            $error[] = ("Bu hatayı alırsanız, işlemi 1-2 dk sonra tekrar deneyin.");			
+		}elseif($result[0] == 30){
+            $log[] = ("Hesap Aktivasyonu sağlanmamış.");
+            $error[] = ("Hesap Aktivasyonu sağlanmamış.");			
+		}else{
+			$log[] = ("Mesaj Başarıyla Gönderildi.");			
+		}			
 
         return array(
             'log' => $log,
             'error' => $error,
-            'msgid' => $result,
+            'msgid' => substr($result[0], 1, -4),
         );
     }
-    
     function balance(){
 		$params = $this->getParams();
 		if($params->user && $params->pass){
-            $xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
-            '<smskredi ka="'.$params->user.'" pwd="'.$params->pass.'" />';
-            $URL = "https://smsgw.mutlucell.com/smsgw-ws/gtcrdtex";
+			$xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
+			'<smskredi ka="'.$params->user.'" pwd="'.$params->pass.'" />';
+			$URL = "https://smsgw.mutlucell.com/smsgw-ws/gtcrdtex"; 
             $ch = curl_init($URL);
             curl_setopt($ch, CURLOPT_MUTE, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -84,25 +80,44 @@ class mutlucell extends AktuelSms {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             $output = curl_exec($ch);
             curl_close($ch);
-
-            $h0 = 20;
-            $h3 = 23;
-            if($output == $h0){
-//                return ("Post edilen xml eksik veya hatalı.Hata Kodu: $output");
-                return null;
-            }elseif($output == $h3){
-//                return ("Kullanıcı adı ya da parolanız hatalı. Hata Kodu: $output");
-                return null;
-            }else{
-                return $output;
-            }
+			
+			$result = explode(" ", $output);
+			if($result[0] == 20){
+				return null;
+			}elseif($result[0] == 23){
+				return null;
+			}else{
+				return substr($output, 1, -2);
+			}
 		}else{		
         	return null;
 		}
     }
-    
+
     function report($msgid){
-        return null;
+		$params = $this->getParams();
+        if($params->user && $params->pass && $msgid){
+			$xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
+			'<smsrapor ka="'.$params->user.'" pwd="'.$params->pass.'" id="'.$msgid.'" />';
+			$URL = "https://smsgw.mutlucell.com/smsgw-ws/gtblkrprtex"; 
+            $ch = curl_init($URL);
+            curl_setopt($ch, CURLOPT_MUTE, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, "$xml_data");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);								
+            if($output != 20 && $output != 23 && $output != 30){
+                return "success";
+            }else{
+                return "error";
+            }			
+		}else{		
+        	return null;			
+		}
     }
 }
 
@@ -113,3 +128,4 @@ return array(
         'user','pass'
     )
 );
+

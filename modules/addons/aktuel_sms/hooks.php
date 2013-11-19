@@ -10,7 +10,7 @@
 if (!defined("WHMCS"))
 	die("This file cannot be accessed directly");
 
-require "smsclass.php";
+require_once("smsclass.php");
 $class = new AktuelSms();
 $hooks = $class->getHooks();
 

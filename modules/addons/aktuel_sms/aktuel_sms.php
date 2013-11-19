@@ -36,7 +36,7 @@ function aktuel_sms_activate() {
 	$result = mysql_query($query);
 
     //Creating hooks
-	require "smsclass.php";
+	require_once("smsclass.php");
     $class = new AktuelSms();
     $class->checkHooks();
 

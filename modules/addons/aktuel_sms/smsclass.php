@@ -106,7 +106,7 @@ class AktuelSms{
             $this->addLog("Message: ".$message);
             $this->addLog("SenderClass: ".$sender_function);
 
-            include("senders/".$sender_function.".php");
+            include_once("senders/".$sender_function.".php");
             $sender = new $sender_function(trim($message),$this->getGsmnumber());
             $result = $sender->send();
 
@@ -168,7 +168,7 @@ class AktuelSms{
         if ($handle = opendir(dirname(__FILE__).'/hooks')) {
             while (false !== ($entry = readdir($handle))) {
                 if(substr($entry,strlen($entry)-4,strlen($entry)) == ".php"){
-                    $file[] = require('hooks/'.$entry);
+                    $file[] = require_once('hooks/'.$entry);
                 }
             }
             closedir($handle);

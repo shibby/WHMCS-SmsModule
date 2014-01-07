@@ -28,6 +28,7 @@ Desteklenen SMS Firmaları
 * NetGsm (Türkiye)
 * UcuzSmsAl (Türkiye)
 * Mutlucell (Türkiye)
+* Dakik SMS (Türkiye)
 
 
 Desteklenen Hook'lar
@@ -97,6 +98,7 @@ Supported SMS Gateways
 * NetGsm (Turkey)
 * UcuzSmsAl (Turkey)
 * Mutlucell (Turkey)
+* Dakik SMS (Turkey)
 
 
 Supported Hooks

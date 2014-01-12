@@ -29,6 +29,7 @@ Desteklenen SMS Firmaları
 * UcuzSmsAl (Türkiye)
 * Mutlucell (Türkiye)
 * Dakik SMS (Türkiye)
+* msg91.com (Hindistan)
 
 
 Desteklenen Hook'lar
@@ -99,6 +100,7 @@ Supported SMS Gateways
 * UcuzSmsAl (Turkey)
 * Mutlucell (Turkey)
 * Dakik SMS (Turkey)
+* msg91.com (India)
 
 
 Supported Hooks

@@ -39,3 +39,9 @@ $_ADDONLANG['credit'] = "Kalan bakiyeniz";
 
 $_ADDONLANG['error'] = "Hata";
 $_ADDONLANG['success'] = "Başarılı";
+
+$_ADDONLANG['authkey'] = "Doğrulama Anahtarı";
+$_ADDONLANG['route'] = "SMS Teslimat Güzergahı (e.g: 4)";
+$_ADDONLANG['flash'] = "Flash SMS (Yes=1/No=0)";
+$_ADDONLANG['unicode'] = "Unicode SMS (Yes=1/No=0)";
+$_ADDONLANG['ignoreNdnc'] = "NDNC Numaraları görmezden? (Yes=1/No=0)";

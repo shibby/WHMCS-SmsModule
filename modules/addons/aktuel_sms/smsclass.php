@@ -259,6 +259,16 @@ class AktuelSms{
                 $this->addError("Numara formatı hatalı: ".$number);
                 return null;
             }
+        }elseif($sender == "msg91"){
+			if (strlen($number) == 10){
+                $number = '91' . $number;
+            }
+			
+            if (substr($number, 0, 2) != "91"){
+                $this->addLog("Number format incorrect: ".$number);
+                $this->addError("Number format incorrect: ".$number);
+                return null;
+            }
         }
 
         return $number;

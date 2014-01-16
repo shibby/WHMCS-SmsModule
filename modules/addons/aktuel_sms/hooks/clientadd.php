@@ -37,6 +37,7 @@ if(!function_exists('ClientAdd')){
         $UserInformation = mysql_fetch_assoc($result);
 
         if($num_rows == 1){
+            $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
             $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['email'],$args['password']);
             $message = str_replace($replacefrom,$replaceto,$template['template']);

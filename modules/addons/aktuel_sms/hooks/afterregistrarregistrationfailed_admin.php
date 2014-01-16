@@ -20,6 +20,7 @@ if(!function_exists('AfterRegistrarRegistrationFailed_admin')){
         }
         $admingsm = explode(",",$template['admingsm']);
 
+        $template['variables'] = str_replace(" ","",$template['variables']);
         $replacefrom = explode(",",$template['variables']);
         $replaceto = array($args['params']['sld'].".".$args['params']['tld']);
         $message = str_replace($replacefrom,$replaceto,$template['template']);

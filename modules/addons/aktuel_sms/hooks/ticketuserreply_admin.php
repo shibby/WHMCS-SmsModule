@@ -21,6 +21,7 @@ if(!function_exists('TicketUserReply_admin')){
         }
         $admingsm = explode(",",$template['admingsm']);
 
+        $template['variables'] = str_replace(" ","",$template['variables']);
         $replacefrom = explode(",",$template['variables']);
         $replaceto = array($args['subject']);
         $message = str_replace($replacefrom,$replaceto,$template['template']);

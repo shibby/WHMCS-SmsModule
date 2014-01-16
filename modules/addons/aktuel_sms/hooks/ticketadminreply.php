@@ -38,7 +38,7 @@ if(!function_exists('TicketAdminReply')){
         $num_rows = mysql_num_rows($result);
         if($num_rows == 1){
             $UserInformation = mysql_fetch_assoc($result);
-
+            $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
             $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['subject']);
             $message = str_replace($replacefrom,$replaceto,$template['template']);

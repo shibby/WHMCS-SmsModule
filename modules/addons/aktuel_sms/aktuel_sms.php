@@ -70,6 +70,9 @@ function aktuel_sms_upgrade($vars) {
         case "1.1";
             $sql = "ALTER TABLE `mod_aktuelsms_settings` CHANGE `apiparams` `apiparams` VARCHAR( 500 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;";
             mysql_query($sql);
+        case "1.1.1";
+            $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1.1.2'";
+            mysql_query($sql);
     }
 
     $class = new AktuelSms();

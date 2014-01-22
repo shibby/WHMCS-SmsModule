@@ -16,7 +16,8 @@ class clickatell extends AktuelSms {
 
         $url = "$baseurl/http/auth?user=$params->user&password=$params->pass&api_id=$params->apiid&from=$params->senderid";
         $ret = file($url);
-        $log[] = ("Sunucudan dönen cevap: ".$ret);
+        $answer = is_array($ret)?json_encode($ret):$ret;
+        $log[] = ("Answer from Clickatell: ".$answer);
 
         $sess = explode(":", $ret[0]);
         if ($sess[0] == "OK") {
@@ -28,14 +29,16 @@ class clickatell extends AktuelSms {
             $send = explode(":", $ret[0]);
 
             if ($send[0] == "ID") {
-                $log[] = ("Mesaj gönderildi.");
+                $log[] = ("Message Sent.");
             } else {
-                $log[] = ("Mesaj gönderilemedi. Hata: $ret");
-                $error[] = ("Mesaj gönderilirken hata oluştu. Hata: $ret");
+                $answer = is_array($ret)?json_encode($ret):$ret;
+                $log[] = ("Message could not sent. Error: $answer");
+                $error[] = ("Message could not sent. Error: $answer");
             }
         } else {
-            $log[] = ("Mesaj gönderilemedi. Authentication Hata: $ret[0]");
-            $error[] = ("Authentication failed. $ret[0] ");
+            $answer = is_array($ret)?json_encode($ret):$ret;
+            $log[] = ("Message could not sent. Error: $answer");
+            $error[] = ("Message could not sent. Error: $answer");
         }
 
         return array(

@@ -10,8 +10,7 @@ class routesms extends AktuelSms {
 
         $params = $this->getParams();
 
-        $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$params->user&password=$params->pass&gsmno=$this->gsmnumber&message=".urlencode($this->message)."&msgheader=$params->senderid";
-        $url = "http://smpp1.routesms.com:8080/bulksms/bulksms?username=$params->user&password=$params->pass&type=1&dlr=0&destination=$this->gsmnumber&source=$params->senderid&message=".urlencode($this->message)."";
+        $url = "http://121.241.242.114:8080/bulksms/bulksms?username=$params->user&password=$params->pass&type=1&dlr=0&destination=$this->gsmnumber&source=$params->senderid&message=".urlencode($this->message)."";
         $log[] = "Request url: ".$url;
         $result = file_get_contents($url);
 

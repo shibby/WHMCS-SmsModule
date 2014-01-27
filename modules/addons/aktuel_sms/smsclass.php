@@ -345,4 +345,20 @@ class AktuelSms{
         return $data;
     }
 
+    function changeDateFormat($date = null){
+        $settings = $this->getSettings();
+        $dateformat = $settings['dateformat'];
+        if(!$dateformat){
+            return $date;
+        }
+
+        $date = explode("-",$date);
+        $year = $date[0];
+        $month = $date[1];
+        $day = $date[2];
+
+        $dateformat = str_replace(array("%d","%m","%y"),array($day,$month,$year),$dateformat);
+        return $dateformat;
+    }
+
 }

@@ -10,6 +10,7 @@ $_ADDONLANG['user'] = "Username";
 $_ADDONLANG['pass'] = "Password";
 $_ADDONLANG['apiid'] = "API ID";
 $_ADDONLANG['senderid'] = "SenderID(Title)";
+$_ADDONLANG['dateformat'] = "Date Format";
 $_ADDONLANG['sender'] = "Sender";
 $_ADDONLANG['settings'] = "Settings";
 $_ADDONLANG['signature'] = "Signature";

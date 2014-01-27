@@ -10,6 +10,7 @@ $_ADDONLANG['wantsmsfield'] = "SMS İsteği";
 $_ADDONLANG['pass'] = "Şifre";
 $_ADDONLANG['user'] = "Kullanıcı Adı";
 $_ADDONLANG['senderid'] = "Başlık";
+$_ADDONLANG['dateformat'] = "Tarih Formatı";
 $_ADDONLANG['sender'] = "Gönderici";
 $_ADDONLANG['settings'] = "Ayarlar";
 $_ADDONLANG['signature'] = "Mesaj imzası";

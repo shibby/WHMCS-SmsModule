@@ -46,9 +46,13 @@ Desteklenen Hook'lar
 * DomainRenewalNotice: Domainin süresinin dolmasına {x} gün kala müşteriye bilgilendirme mesajı gönderilir. {x: Eklentide belirleyebilisiniz.)
 * InvoicePaymentReminder: Eğer ödenmemiş bir fatura varsa müşteriye bilgi mesajı gönderilir.
 * InvoicePaymentReminder_FirstOverdue: Eğer fatura ödemesinin günü geçtiyse müşteriye bilgi mesajı gönderilir.
+* InvoicePaymentReminder_secondoverdue: Ödenmemiş faturanın ikinci zaman aşımında mesaj gönderir.
+* InvoicePaymentReminder_thirdoverdue: Ödenmemiş faturanın üçüncü zaman aşımında mesaj gönderir.
 * AfterModuleSuspend: Hosting hesabı suspend edilirse bilgi mesajı gönderilir. 
 * AfterModuleUnsuspend: Hosting hesabı unsuspend edilirse bilgi mesajı gönderilir. 
 * InvoiceCreated: Sistem yeni fatura oluşturursa bilgi mesajı gönderilir. 
+* AfterModuleChangePassword: Hosting hesabı şifresi değiştiğinde gönderir.
+* InvoicePaid: Faturanız ödendiğinde mesaj gönderir.
 
 Katkıda bulun
 ---------------
@@ -116,10 +120,14 @@ Supported Hooks
 * AcceptOrder: Send sms to user when order accepted manually or automatically.
 * DomainRenewalNotice: Remaining to the end of {x} days prior to the domain's end time, user will be get a message.
 * InvoicePaymentReminder: If there is a payment that not paid, user will be get a information message.
-* InvoicePaymentReminder_FirstOverdue:
+* InvoicePaymentReminder_FirstOverdue: Invoice payment first for seconds overdue.
+* InvoicePaymentReminder_secondoverdue: Invoice payment second for seconds overdue.
+* InvoicePaymentReminder_thirdoverdue: Invoice payment third for seconds overdue.
 * AfterModuleSuspend: Send sms after hosting account suspended. 
 * AfterModuleUnsuspend: Send sms after hosting account unsuspended.
 * InvoiceCreated: Send sms every invoice creation. 
+* AfterModuleChangePassword: After module change password.
+* InvoicePaid: Whenyou have paidthe billsends a message.
 
 Contribute Plugin
 ---------------

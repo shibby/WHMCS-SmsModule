@@ -221,17 +221,7 @@ class AktuelSms{
         $sender = $this->getSender();
 
         if($sender == "clickatell"){
-			if (strlen($number) == 10) {
-                $number = '90' . $number;
-            } elseif (strlen($number) == 11) {
-                $number = '9' . $number;
-            }
 
-            if (substr($number, 0, 3) != "905") {
-                $this->addLog("Numara formatı hatalı: ".$number);
-                $this->addError("Numara formatı hatalı: ".$number);
-                return null;
-            }
         }elseif($sender == "ucuzsmsal"){
 
             if (strlen($number) == 10) {

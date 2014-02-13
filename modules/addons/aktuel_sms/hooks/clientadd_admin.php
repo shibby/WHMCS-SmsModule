@@ -22,11 +22,9 @@ if(!function_exists('ClientAdd_admin')){
 
         foreach($admingsm as $gsm){
             if(!empty($gsm)){
-                $class->sender = $settings['api'];
-                $class->params = $settings['apiparams'];
-                $class->gsmnumber = trim($gsm);
-                $class->message = $template['template'];
-                $class->userid = 0;
+                $class->setGsmnumber(trim($gsm));
+                $class->setUserid(0);
+                $class->setMessage($template['template']);
                 $class->send();
             }
         }

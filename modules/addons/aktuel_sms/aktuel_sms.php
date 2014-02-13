@@ -14,7 +14,7 @@ function aktuel_sms_config() {
     $configarray = array(
         "name" => "Aktuel Sms",
         "description" => "WHMCS Sms Addon. You can see details from: https://github.com/AktuelSistem/WHMCS-SmsModule",
-        "version" => "1.1.3",
+        "version" => "1.1.4",
         "author" => "Aktüel Sistem ve Bilgi Teknolojileri",
 		"language" => "turkish",
     );
@@ -70,6 +70,7 @@ function aktuel_sms_upgrade($vars) {
         case "1.1.2";
             $sql = "ALTER TABLE `mod_aktuelsms_settings` ADD `dateformat` VARCHAR(12) NULL AFTER `gsmnumberfield`;UPDATE `mod_aktuelsms_settings` SET dateformat = '%d.%m.%y';";
             mysql_query($sql);
+        case "1.1.3";
     }
 
     $class = new AktuelSms();
@@ -309,6 +310,9 @@ function aktuel_sms_output($vars){
                 </tr>
                 ';
             }
+            echo '<tr>
+                <td colspan="2"><hr></td>
+            </tr>';
         }
         echo '
         </tbody>

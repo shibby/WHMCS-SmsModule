@@ -11,10 +11,8 @@ if(!function_exists('ClientAreaHeadOutput')){
         $field = $settings['wantsmsfield'];
 
         $html = '<script type="text/javascript">
-        var field = document.getElementById("customfield'.$field.'");
-        field.checked = true;
-        var elem = document.getElementById("customfield1");
-        elem.value = "My default value";
+        //$("#customfield'.$field.'").attr("checked","checked");
+        $("#customfield'.$field.'").each(function(){ this.checked = true; });
         </script>';
 
         return $html;

@@ -42,7 +42,7 @@ if(!function_exists('InvoiceCreated')){
             $UserInformation = mysql_fetch_assoc($result);
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
-            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$UserInformation['duedate']);
+            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']));
             $message = str_replace($replacefrom,$replaceto,$template['template']);
 
             $class->setGsmnumber($UserInformation['gsmnumber']);

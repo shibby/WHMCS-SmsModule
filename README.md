@@ -24,7 +24,6 @@ Desteklenen SMS Firmaları
 ----------------------
 
 * ClickAtell (Global)
-* İleti Merkezi (Türkiye)
 * NetGsm (Türkiye)
 * UcuzSmsAl (Türkiye)
 * Mutlucell (Türkiye)
@@ -99,7 +98,6 @@ Supported SMS Gateways
 ---------------
 
 * ClickAtell (Global)
-* Ileti Merkezi (Turkey)
 * NetGsm (Turkey)
 * UcuzSmsAl (Turkey)
 * Mutlucell (Turkey)

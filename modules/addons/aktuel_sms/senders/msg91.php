@@ -2,11 +2,16 @@
 class msg91 extends AktuelSms {
 
     function __construct($message,$gsmnumber){
-        $this->message = $message;
-        $this->gsmnumber = $gsmnumber;
+        $this->message = $this->utilmessage($message);
+        $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
 	
 	function send(){
+        if($this->gsmnumber == "numbererror"){
+            $log[] = ("Number format error.".$this->gsmnumber);
+            $error[] = ("Number format error.".$this->gsmnumber);
+            return null;
+        }
         $params = $this->getParams();
 
 		//Your authentication key (Go to https://control.msg91.com/apidoc/)
@@ -112,7 +117,7 @@ class msg91 extends AktuelSms {
         if($params->authkey && $msgid){
 			$baseurl = "https://control.msg91.com";
 			$url = "$baseurl/api/check_delivery.php?authkey=$params->authkey&requestid=$msgid";
-			$result = file_get_contents($url);	
+			$result = file_get_contents($url);
 			$result = array_map('trim',explode(":",$result));
 			$cvp = $result[1];
             if ($cvp == 001 || $cvp == 002){
@@ -123,6 +128,23 @@ class msg91 extends AktuelSms {
         }else{
             return null;
         }
+    }
+
+    //You can spesifically convert your gsm number. See netgsm for example
+    function utilgsmnumber($number){
+        if (strlen($number) == 10){
+            $number = '91' . $number;
+        }
+
+        if (substr($number, 0, 2) != "91"){
+            return "numbererror";
+        }
+
+        return $number;
+    }
+    //You can spesifically convert your message
+    function utilmessage($message){
+        return $message;
     }
 }
 

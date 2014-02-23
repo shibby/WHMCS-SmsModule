@@ -2,12 +2,16 @@
 
 class netgsm extends AktuelSms {
     function __construct($message,$gsmnumber){
-        $this->message = $message;
-        $this->gsmnumber = $gsmnumber;
+        $this->message = $this->utilmessage($message);
+        $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
 
     function send(){
-
+        if($this->gsmnumber == "numbererror"){
+            $log[] = ("Number format error.".$this->gsmnumber);
+            $error[] = ("Number format error.".$this->gsmnumber);
+            return null;
+        }
         $params = $this->getParams();
 
         $url = "http://api.netgsm.com.tr/bulkhttppost.asp?usercode=$params->user&password=$params->pass&gsmno=$this->gsmnumber&message=".urlencode($this->message)."&msgheader=$params->senderid";
@@ -85,6 +89,28 @@ class netgsm extends AktuelSms {
         }else{
             return null;
         }
+    }
+
+    function utilgsmnumber($number){
+        if (strlen($number) == 10) {
+            $number = '90' . $number;
+        } elseif (strlen($number) == 11) {
+            $number = '9' . $number;
+        }
+
+        if (substr($number, 0, 3) != "905") {
+            return "error";
+        }
+
+        return $number;
+    }
+
+    //You can spesifically convert your message
+    function utilmessage($message){
+        $changefrom = array('ı', 'İ', 'ü', 'Ü', 'ö', 'Ö', 'ğ', 'Ğ', 'ç', 'Ç','ş','Ş');
+        $changeto = array('i', 'I', 'u', 'U', 'o', 'O', 'g', 'G', 'c', 'C','s','S');
+        $message = str_replace($changefrom, $changeto, $message);
+        return $message;
     }
 }
 

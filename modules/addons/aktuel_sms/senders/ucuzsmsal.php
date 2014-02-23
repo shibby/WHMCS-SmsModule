@@ -2,11 +2,16 @@
 
 class ucuzsmsal extends AktuelSms {
     function __construct($message,$gsmnumber){
-        $this->message = $message;
-        $this->gsmnumber = $gsmnumber;
+        $this->message = $this->utilmessage($message);
+        $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
 
     function send(){
+        if($this->gsmnumber == "numbererror"){
+            $log[] = ("Number format error.".$this->gsmnumber);
+            $error[] = ("Number format error.".$this->gsmnumber);
+            return null;
+        }
         $params = json_decode($this->params);
 
         $url = "http://www.ucuzsmsal.com/api/index.php?act=sendsms&user=".$params->user."&pass=".$params->pass."&orgin=".$params->senderid."&message=".urlencode($this->message)."&numbers=$this->gsmnumber";
@@ -34,6 +39,27 @@ class ucuzsmsal extends AktuelSms {
     }
     function report($msgid){
         return null;
+    }
+
+    //You can spesifically convert your gsm number. See netgsm for example
+    function utilgsmnumber($number){
+        if (strlen($number) == 10) {
+
+        } elseif (strlen($number) == 11) {
+            $number = substr($number,1,strlen($number));
+        } elseif (strlen($number) == 12) {
+            $number = substr($number,2,strlen($number));
+        }
+
+        if (substr($number, 0, 1) != "5") {
+            return "numbererror";
+        }
+        return $number;
+    }
+
+    //You can spesifically convert your message
+    function utilmessage($message){
+        return $message;
     }
 }
 

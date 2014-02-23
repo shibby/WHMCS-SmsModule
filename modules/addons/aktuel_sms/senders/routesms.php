@@ -2,12 +2,16 @@
 
 class routesms extends AktuelSms {
     function __construct($message,$gsmnumber){
-        $this->message = $message;
-        $this->gsmnumber = $gsmnumber;
+        $this->message = $this->utilmessage($message);
+        $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
 
     function send(){
-
+        if($this->gsmnumber == "numbererror"){
+            $log[] = ("Number format error.".$this->gsmnumber);
+            $error[] = ("Number format error.".$this->gsmnumber);
+            return null;
+        }
         $params = $this->getParams();
 
         $url = "http://121.241.242.114:8080/bulksms/bulksms?username=$params->user&password=$params->pass&type=1&dlr=0&destination=$this->gsmnumber&source=$params->senderid&message=".urlencode($this->message)."";
@@ -71,6 +75,15 @@ class routesms extends AktuelSms {
 
     function report($msgid){
         return null;
+    }
+
+    //You can spesifically convert your gsm number. See netgsm for example
+    function utilgsmnumber($number){
+        return $number;
+    }
+    //You can spesifically convert your message
+    function utilmessage($message){
+        return $message;
     }
 }
 

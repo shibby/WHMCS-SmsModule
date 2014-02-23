@@ -3,11 +3,17 @@
 class mutlucell extends AktuelSms {
 
     function __construct($message,$gsmnumber){
-        $this->message = $message;
-        $this->gsmnumber = $gsmnumber;
+        $this->message = $this->utilmessage($message);
+        $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
 
     function send(){
+        if($this->gsmnumber == "numbererror"){
+            $log[] = ("Number format error.".$this->gsmnumber);
+            $error[] = ("Number format error.".$this->gsmnumber);
+            return null;
+        }
+
         $params = $this->getParams();
         
         $xml_data ='<?xml version="1.0" encoding="UTF-8"?>'.
@@ -118,6 +124,15 @@ class mutlucell extends AktuelSms {
 		}else{		
         	return null;			
 		}
+    }
+
+    //You can spesifically convert your gsm number. See netgsm for example
+    function utilgsmnumber($number){
+        return $number;
+    }
+    //You can spesifically convert your message
+    function utilmessage($message){
+        return $message;
     }
 }
 

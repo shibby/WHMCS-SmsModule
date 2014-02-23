@@ -2,11 +2,17 @@
 class clickatell extends AktuelSms {
 
     function __construct($message,$gsmnumber){
-        $this->message = $message;
-        $this->gsmnumber = $gsmnumber;
+        $this->message = $this->utilmessage($message);
+        $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
 
     function send(){
+        if($this->gsmnumber == "numbererror"){
+            $log[] = ("Number format error.".$this->gsmnumber);
+            $error[] = ("Number format error.".$this->gsmnumber);
+            return null;
+        }
+
         $params = $this->getParams();
 
         $baseurl = "http://api.clickatell.com";
@@ -80,6 +86,15 @@ class clickatell extends AktuelSms {
         }else{
             return null;
         }
+    }
+
+    //You can spesifically convert your gsm number. See netgsm for example
+    function utilgsmnumber($number){
+        return $number;
+    }
+    //You can spesifically convert your message
+    function utilmessage($message){
+        return $message;
     }
 }
 

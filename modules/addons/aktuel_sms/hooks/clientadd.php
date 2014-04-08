@@ -34,9 +34,10 @@ if(!function_exists('ClientAdd')){
         LIMIT 1";
         $result = mysql_query($userSql);
         $num_rows = mysql_num_rows($result);
-        $UserInformation = mysql_fetch_assoc($result);
 
         if($num_rows == 1){
+            $UserInformation = mysql_fetch_assoc($result);
+
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
             $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['email'],$args['password']);
@@ -44,7 +45,7 @@ if(!function_exists('ClientAdd')){
 
             $class->setGsmnumber($UserInformation['gsmnumber']);
             $class->setMessage($message);
-            $class->setUserid($UserInformation['id']);
+            $class->setUserid($args['userid']);
             $class->send();
         }
     }

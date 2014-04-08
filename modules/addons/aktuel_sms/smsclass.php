@@ -274,7 +274,7 @@ class AktuelSms{
     }
 
     function getTemplateDetails($template = null){
-        $where = array("name" => array("sqltype" => "LIKE", "value" => $template));
+        $where = array("name" => $template);
         $result = select_query("mod_aktuelsms_templates", "*", $where);
         $data = mysql_fetch_assoc($result);
 

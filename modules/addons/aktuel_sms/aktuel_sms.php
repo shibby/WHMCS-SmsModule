@@ -14,7 +14,7 @@ function aktuel_sms_config() {
     $configarray = array(
         "name" => "Aktuel Sms",
         "description" => "WHMCS Sms Addon. You can see details from: https://github.com/AktuelSistem/WHMCS-SmsModule",
-        "version" => "1.1.5",
+        "version" => "1.1.6",
         "author" => "Aktüel Sistem ve Bilgi Teknolojileri",
 		"language" => "turkish",
     );
@@ -85,6 +85,8 @@ function aktuel_sms_upgrade($vars) {
             mysql_query($sql);
             $sql = "ALTER TABLE `mod_aktuelsms_messages` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;";
             mysql_query($sql);
+        case "1.1.5":
+            break;
 
     }
 

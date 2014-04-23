@@ -15,7 +15,7 @@ class mysmtsms extends AktuelSms {
 
         $params = $this->getParams();
 
-        $result = @file_get_contents('http://www.mysmtsms.com/components/com_spc/smsapi.php?username='.$params->user.'&password='.$params->pass.'&sender=@@'.urlencode($params->senderid).'@@&recipient=@@'.urlencode($this->gsmnumber).'@@&message=@@'.urlencode($this->message).'@@&');
+        $result = @file_get_contents('http://www.mysmtsms.com/components/com_spc/smsapi.php?username='.$params->user.'&password='.$params->pass.'&sender='.urlencode($params->senderid).'&recipient='.urlencode($this->gsmnumber).'&message='.urlencode($this->message).'&');
         $result = explode(" ",$result);
 
         if($result[0] == "OK") {

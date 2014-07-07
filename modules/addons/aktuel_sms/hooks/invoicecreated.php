@@ -8,8 +8,8 @@ $hook = array(
     ),
     'type' => 'client',
     'extra' => '',
-    'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli bir fatura olusturulmustur. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com',
-    'variables' => '{firstname}, {lastname}, {duedate}'
+    'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli {total} TL tutarinda bir fatura olusturulmustur. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com',
+    'variables' => '{firstname}, {lastname}, {duedate}, {total}'
 );
 if(!function_exists('InvoiceCreated')){
     function InvoiceCreated($args){
@@ -25,7 +25,7 @@ if(!function_exists('InvoiceCreated')){
         }
 
         $userSql = "
-        SELECT a.duedate,b.id as userid,b.firstname,b.lastname,`c`.`value` as `gsmnumber` FROM `tblinvoices` as `a`
+        SELECT a.total,a.duedate,b.id as userid,b.firstname,b.lastname,`c`.`value` as `gsmnumber` FROM `tblinvoices` as `a`
         JOIN tblclients as b ON b.id = a.userid
         JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
         JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
@@ -42,7 +42,7 @@ if(!function_exists('InvoiceCreated')){
             $UserInformation = mysql_fetch_assoc($result);
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
-            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']));
+            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']),$UserInformation['total']);
             $message = str_replace($replacefrom,$replaceto,$template['template']);
 
             $class->setGsmnumber($UserInformation['gsmnumber']);

@@ -64,7 +64,7 @@ Katkıda bulunanlar
 
 * [Güven Atbakan](http://github.com/shibby) - PHP Geliştirici  [Aktüel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
 * [Turgay Coşkun](http://github.com/adalim61) - turgaycoskun[at]gmail[dot]com
-
+* [Hakan Ersu](https://github.com/hakanersu)
 Bazı Ekran Görüntüleri
 --------------
 
@@ -138,3 +138,4 @@ Contributors
 
 * [Guven Atbakan](http://github.com/shibby) - PHP Developer at [Aktuel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
 * [Turgay Coşkun](http://github.com/adalim61) - turgaycoskun[at]gmail[dot]com
+* [Hakan Ersu](https://github.com/hakanersu)

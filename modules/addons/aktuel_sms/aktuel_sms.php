@@ -437,13 +437,46 @@ function aktuel_sms_output($vars){
         JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`id`
         WHERE `b`.`fieldid` = '".$settings['gsmnumberfield']."'
         AND `c`.`fieldid` = '".$settings['wantsmsfield']."'
-        AND `c`.`value` = 'on'";
+        AND `c`.`value` = 'on' order by `a`.`firstname`";
         $clients = '';
         $result = mysql_query($userSql);
         while ($data = mysql_fetch_array($result)) {
             $clients .= '<option value="'.$data['id'].'_'.$data['gsmnumber'].'">'.$data['firstname'].' '.$data['lastname'].' (#'.$data['id'].')</option>';
         }
+        echo '
+        <script>
+        jQuery.fn.filterByText = function(textbox, selectSingleMatch) {
+          return this.each(function() {
+            var select = this;
+            var options = [];
+            $(select).find("option").each(function() {
+              options.push({value: $(this).val(), text: $(this).text()});
+            });
+            $(select).data("options", options);
+            $(textbox).bind("change keyup", function() {
+              var options = $(select).empty().scrollTop(0).data("options");
+              var search = $.trim($(this).val());
+              var regex = new RegExp(search,"gi");
 
+              $.each(options, function(i) {
+                var option = options[i];
+                if(option.text.match(regex) !== null) {
+                  $(select).append(
+                     $("<option>").text(option.text).val(option.value)
+                  );
+                }
+              });
+              if (selectSingleMatch === true && 
+                  $(select).children().length === 1) {
+                $(select).children().get(0).selected = true;
+              }
+            });
+          });
+        };
+        $(function() {
+          $("#clientdrop").filterByText($("#textbox"), true);
+        });  
+        </script>';
         echo '<form action="" method="post">
         <input type="hidden" name="action" value="save" />
             <div style="text-align: left;background-color: whiteSmoke;margin: 0px;padding: 10px;">
@@ -452,7 +485,8 @@ function aktuel_sms_output($vars){
                         <tr>
                             <td class="fieldlabel" width="30%">'.$LANG['client'].'</td>
                             <td class="fieldarea">
-                                <select name="client">
+                                <input id="textbox" type="text" placeholder="Filtrelemek İçin İsim Yazınız" style="width:498px;padding:5px"><br>
+                                <select name="client" multiple id="clientdrop" style="width:512px;padding:5px">
                                     <option value="">'.$LANG['selectclient'].'</option>
                                     ' . $clients . '
                                 </select>
@@ -461,7 +495,7 @@ function aktuel_sms_output($vars){
                         <tr>
                             <td class="fieldlabel" width="30%">'.$LANG['mesaj'].'</td>
                             <td class="fieldarea">
-                                <textarea cols="50" name="message"></textarea>
+                               <textarea cols="70" rows="20" name="message" style="width:498px;padding:5px"></textarea>
                             </td>
                         </tr>
                         <tr>

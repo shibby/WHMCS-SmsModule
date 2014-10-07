@@ -8,8 +8,8 @@ $hook = array(
     ),
     'type' => 'client',
     'extra' => '',
-    'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli {total} TL tutarinda bir fatura olusturulmustur. Detayli bilgi icin sitemizi ziyaret edin. www.aktuelhost.com',
-    'variables' => '{firstname}, {lastname}, {duedate}, {total}'
+    'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli {total} TL tutarinda bir fatura olusturulmustur. Fatura Numarasi: {invoiceid}. Detayli bilgi icin sitemizi ziyaret edin.',
+    'variables' => '{firstname}, {lastname}, {duedate}, {total}, {invoiceid}'
 );
 if(!function_exists('InvoiceCreated')){
     function InvoiceCreated($args){
@@ -42,7 +42,7 @@ if(!function_exists('InvoiceCreated')){
             $UserInformation = mysql_fetch_assoc($result);
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
-            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']),$UserInformation['total']);
+            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']),$UserInformation['total'],$args['invoiceid']);
             $message = str_replace($replacefrom,$replaceto,$template['template']);
 
             $class->setGsmnumber($UserInformation['gsmnumber']);

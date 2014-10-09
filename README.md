@@ -30,6 +30,7 @@ Desteklenen SMS Firmaları
 * Dakik SMS (Türkiye)
 * msg91.com (Hindistan)
 * bytehand.com (Global, Russian)
+* 1sms.com.tr (Türkiye)
 
 
 Desteklenen Hook'lar
@@ -106,6 +107,7 @@ Supported SMS Gateways
 * Dakik SMS (Turkey)
 * msg91.com (India)
 * bytehand.com (Global, Russian)
+* 1sms.com.tr (Türkiye)
 
 Supported Hooks
 ---------------

@@ -244,6 +244,10 @@ class AktuelSms{
         return $res;
     }
 
+    /*
+     * Runs at addon install/update
+     * This function controls that if there is any change at hooks files. Such as new hook, variable changes at hooks.
+     */
     function checkHooks($hooks = null){
         if($hooks == null){
             $hooks = $this->getHooks();
@@ -268,6 +272,11 @@ class AktuelSms{
                     insert_query("mod_aktuelsms_templates", $values);
                     $i++;
                 }
+            }else{
+                $values = array(
+                    "variables" => $hook['variables']
+                );
+                update_query("mod_aktuelsms_templates", $values, "name = '" . $hook['name']."'");
             }
         }
         return $i;

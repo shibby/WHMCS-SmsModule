@@ -86,6 +86,7 @@ function aktuel_sms_upgrade($vars) {
             $sql = "ALTER TABLE `mod_aktuelsms_messages` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;";
             mysql_query($sql);
         case "1.1.5":
+        case "1.1.6":
             break;
 
     }

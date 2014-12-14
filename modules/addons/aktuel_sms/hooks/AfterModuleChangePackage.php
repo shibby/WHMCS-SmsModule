@@ -9,7 +9,7 @@ $hook = array(
     'type' => 'client',
     'extra' => '',
     'defaultmessage' => 'Sayin {firstname} {lastname}, ürün/hizmet paketiniz degistirildi. ({domain})',
-    'variables' => '{firstname},{lastname},{domain},{1},{2}'
+    'variables' => '{firstname},{lastname},{domain}'
 );
 if(!function_exists('AfterModuleChangePackage')){
     function AfterModuleChangePackage($args){

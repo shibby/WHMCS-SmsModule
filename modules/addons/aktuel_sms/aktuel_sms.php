@@ -14,7 +14,7 @@ function aktuel_sms_config() {
     $configarray = array(
         "name" => "Aktuel Sms",
         "description" => "WHMCS Sms Addon. You can see details from: https://github.com/AktuelSistem/WHMCS-SmsModule",
-        "version" => "1.1.6",
+        "version" => "1.1.8",
         "author" => "Aktüel Sistem ve Bilgi Teknolojileri",
 		"language" => "turkish",
     );
@@ -87,6 +87,7 @@ function aktuel_sms_upgrade($vars) {
             mysql_query($sql);
         case "1.1.5":
         case "1.1.6":
+        case "1.1.7":
             break;
 
     }

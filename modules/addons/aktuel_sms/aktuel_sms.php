@@ -374,13 +374,28 @@ function aktuel_sms_output($vars){
         <tbody>
         ';
 
+        // Getting pagination values.
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = (isset($_GET['limit']) && $_GET['limit']<=50) ? (int)$_GET['limit'] : 10;
+        $start  = ($page > 1) ? ($page*$limit)-$limit : 0;
+        $order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
         /* Getting messages order by date desc */
         $sql = "SELECT `m`.*,`user`.`firstname`,`user`.`lastname`
         FROM `mod_aktuelsms_messages` as `m`
         JOIN `tblclients` as `user` ON `m`.`user` = `user`.`id`
-        ORDER BY `m`.`datetime` DESC";
+        ORDER BY `m`.`datetime` {$order} limit {$start},{$limit}";
         $result = mysql_query($sql);
         $i = 0;
+
+        //Getting total records
+        $total = "SELECT count(id) as toplam FROM `mod_aktuelsms_messages`";
+        $sonuc = mysql_query($total);
+        $sonuc = mysql_fetch_array($sonuc);
+        $toplam = $sonuc['toplam'];
+
+        //Page calculation
+        $sayfa = ceil($toplam/$limit);
+
         while ($data = mysql_fetch_array($result)) {
             if($data['msgid'] && $data['status'] == ""){
                 $status = $class->getReport($data['msgid']);
@@ -391,7 +406,7 @@ function aktuel_sms_output($vars){
 
             $i++;
             echo  '<tr>
-            <td>'.$i.'</td>
+            <td>'.$data['id'].'</td>
             <td><a href="clientssummary.php?userid='.$data['user'].'">'.$data['firstname'].' '.$data['lastname'].'</a></td>
             <td>'.$data['to'].'</td>
             <td>'.$data['text'].'</td>
@@ -404,8 +419,15 @@ function aktuel_sms_output($vars){
         echo '
         </tbody>
         </table>
-        </div>
-        ';
+
+        ';  
+        $list="";
+        for($a=1;$a<=$sayfa;$a++)
+        {
+            $selected = ($page==$a) ? 'selected="selected"' : '';
+            $list.="<option value='addonmodules.php?module=aktuel_sms&tab=messages&page={$a}&limit={$limit}&order={$order}' {$selected}>{$a}</option>";
+        }
+        echo "<select  onchange=\"this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);\">{$list}</select></div>";
 
     }
     elseif($tab=="sendbulk")

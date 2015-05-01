@@ -64,10 +64,28 @@ class netgsm extends AktuelSms {
         $params = $this->getParams();
 
         if($params->user && $params->pass){
+            $postUrl = "https://api.netgsm.com.tr/xmlpaketkampanya.asp";
+            $xmlString="<mainbody><header><company>Netgsm</company><usercode>$params->user</usercode><password>$params->pass</password><stip>1</stip></header></mainbody>";
+            // Kalan SMS Adedi Sorgula
+            $fields = $xmlString;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $postUrl);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $result = curl_exec($ch);
+            curl_close($ch);
+            
             $url = "http://api.netgsm.com.tr/get_kredi.asp?usercode=$params->user&password=$params->pass";
-            $result = file_get_contents($url);
-            $result = explode(" ",$result);
-            return $result[1];
+            // Kalan TL Miktarı Sorgula
+            $result2 = file_get_contents($url);
+            $result2 = explode(" ",$result2);
+            
+            $result = str_replace("|", " ", $result);
+            $result = str_replace("<BR>", " ", $result);
+            $result = "$result | $result2[1] TL";
+                
+            return $result;
         }else{
             return null;
         }

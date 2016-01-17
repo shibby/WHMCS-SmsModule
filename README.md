@@ -31,6 +31,7 @@ Desteklenen SMS Firmaları
 * msg91.com (Hindistan)
 * bytehand.com (Global, Russian)
 * 1sms.com.tr (Türkiye)
+* smsGateway.me (Global -> use your own android device to send SMS via API call)
 
 
 Desteklenen Hook'lar

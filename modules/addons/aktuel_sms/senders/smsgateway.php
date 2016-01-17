@@ -1,6 +1,6 @@
 <?php
-
-
+// Author: MichaelPhan
+// Email: sonpython@gmail.com
 
 class smsgateway extends AktuelSms {
     static $baseUrl = "https://smsgateway.me";

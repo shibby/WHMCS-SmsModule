@@ -155,7 +155,7 @@ class smsgateway extends AktuelSms {
             if ($result['response']['result']['success']['error']=="") {
                 $messid = $result['response']['result']['success'][0]['id'];
                 $this->addLog("Message id: " . $messid . " was sent at" . $send_at . "  Status: ".$Status);
-                $log[] = "Message id: " . $messid . " sent at: " . $send_at . "Status: ".$Status;
+                $log[] = "Message id: " . $messid . " sent at: " . $send_at . " Status: ".$Status;
             }elseif($result['response']['result']['fails']['errors']) {
                 $error = json_encode($result['response']['result']['fails']['errors'], JSON_PRETTY_PRINT);
                 $log[] = "Error when sending message. error : ".$error;

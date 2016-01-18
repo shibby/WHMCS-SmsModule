@@ -9,7 +9,7 @@ $hook = array(
     'type' => 'client',
     'extra' => '',
     'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli faturaniz odenmistir. Odeme icin tesekkur ederiz.',
-    'variables' => '{firstname}, {lastname}, {duedate}'
+    'variables' => '{firstname}, {lastname}, {duedate},{invoiceid}'
 );
 if(!function_exists('InvoicePaid')){
     function InvoicePaid($args){
@@ -43,7 +43,7 @@ if(!function_exists('InvoicePaid')){
             
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
-            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']));
+            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']),$args['invoiceid']);
             $message = str_replace($replacefrom,$replaceto,$template['template']);
 
             $class->setGsmnumber($UserInformation['gsmnumber']);

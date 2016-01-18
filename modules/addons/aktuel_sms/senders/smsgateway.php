@@ -149,12 +149,12 @@ class smsgateway extends AktuelSms {
         if ($result['response']['success']) {
             $this->addLog("Call API success.");
             $log[] = "Call API success.";
-            $Status = $result['response']['result']['success']['status'];
-            $send_at = date('Y-m-d h:i:s',$result['response']['result']['success']['send_at']);
+            $Status = $result['response']['result']['success'][0]['status'];
+            $send_at = date('Y-m-d h:i:s',$result['response']['result']['success'][0]['send_at']);
 
             if ($result['response']['result']['success']['error']=="") {
                 $messid = $result['response']['result']['success'][0]['id'];
-                $this->addLog("Message id: " . $messid . " sent at" . $send_at . "Status: ".$Status);
+                $this->addLog("Message id: " . $messid . " was sent at" . $send_at . "  Status: ".$Status);
                 $log[] = "Message id: " . $messid . " sent at: " . $send_at . "Status: ".$Status;
             }elseif($result['response']['result']['fails']['errors']) {
                 $error = json_encode($result['response']['result']['fails']['errors'], JSON_PRETTY_PRINT);
@@ -171,7 +171,7 @@ class smsgateway extends AktuelSms {
         return array(
             'log' => $log,
             'error' => $error,
-            'msgid' => $msgid,
+            'msgid' => $messid,
         );
     }   
 
@@ -197,14 +197,14 @@ class smsgateway extends AktuelSms {
 
     function report($msgid){
         $id = $msgid;
-
         $result = $this->getSingleMessage($id);
 
         if ($result['response']['success']) {
-            $report = 'Status: ' . $result['response']['result']['status'] . '. Error' . $result['response']['result']['error'];
-            return $report;
+            $status = $result['response']['result']['status'];
+            // $report = 'Status: ' . $status . '. Error' . $result['response']['result']['error'];
+            return $status;
         }else {
-            return 'SMS sending fails. Unknown Error $result';
+            return 'Unknown';
         }
     }
 

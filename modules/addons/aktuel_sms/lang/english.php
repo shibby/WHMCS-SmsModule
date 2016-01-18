@@ -41,6 +41,8 @@ $_ADDONLANG['lisans'] = "<a href=\"http://www.aktuelsistem.com\">Aktüel Sistem 
 $_ADDONLANG['credit'] = "Remaining Credit";
 
 $_ADDONLANG['error'] = "Error";
+$_ADDONLANG['pending'] = "Pending";
+$_ADDONLANG['sent'] = "Sent";
 $_ADDONLANG['success'] = "Success";
 
 $_ADDONLANG['authkey'] = "Authentication Key";

@@ -9,6 +9,8 @@ $_ADDONLANG['wantsmsfield'] = "Subscribe SMS Field (Custom client field)";
 $_ADDONLANG['user'] = "Username";
 $_ADDONLANG['pass'] = "Password";
 $_ADDONLANG['apiid'] = "API ID";
+$_ADDONLANG['email'] = "Email";
+$_ADDONLANG['countrycode'] = "Country Code Prefix";
 $_ADDONLANG['senderid'] = "SenderID(Title)";
 $_ADDONLANG['dateformat'] = "Date Format";
 $_ADDONLANG['sender'] = "Sender";
@@ -39,6 +41,8 @@ $_ADDONLANG['lisans'] = "<a href=\"http://www.aktuelsistem.com\">Aktüel Sistem 
 $_ADDONLANG['credit'] = "Remaining Credit";
 
 $_ADDONLANG['error'] = "Error";
+$_ADDONLANG['pending'] = "Pending";
+$_ADDONLANG['sent'] = "Sent";
 $_ADDONLANG['success'] = "Success";
 
 $_ADDONLANG['authkey'] = "Authentication Key";

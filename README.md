@@ -63,8 +63,8 @@ You are free (as freedom) to add new hooks, functions, issues, gateways etc. Jus
 Contributors
 ----------
 
-* [Guven Atbakan](http://github.com/shibby) - PHP Developer at [Aktuel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
-* [Turgay Coşkun](http://github.com/adalim61) - turgaycoskun[at]gmail[dot]com
+* [Guven Atbakan](http://github.com/shibby)
+* [Turgay Coşkun](http://github.com/adalim61)
 * [Hakan Ersu](https://github.com/hakanersu)
 
 
@@ -134,8 +134,8 @@ Yeni hook, fonksiyon, sms gönderici ve diğer bütün herşeyde özgürsünüz.
 Katkıda bulunanlar
 ----------
 
-* [Güven Atbakan](http://github.com/shibby) - PHP Geliştirici  [Aktüel Sistem ve Bilgi Teknolojileri](http://www.aktuelsistem.com) - guven[dot]atbakan[at]aktuelsistem[dot]com
-* [Turgay Coşkun](http://github.com/adalim61) - turgaycoskun[at]gmail[dot]com
+* [Güven Atbakan](http://github.com/shibby)
+* [Turgay Coşkun](http://github.com/adalim61)
 * [Hakan Ersu](https://github.com/hakanersu)
 
 Bazı Ekran Görüntüleri

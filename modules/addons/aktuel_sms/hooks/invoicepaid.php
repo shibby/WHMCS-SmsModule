@@ -11,16 +11,17 @@ $hook = array(
     'defaultmessage' => 'Sayin {firstname} {lastname}, {duedate} son odeme tarihli faturaniz odenmistir. Odeme icin tesekkur ederiz.',
     'variables' => '{firstname}, {lastname}, {duedate},{invoiceid}'
 );
-if(!function_exists('InvoicePaid')){
-    function InvoicePaid($args){
+if (!function_exists('InvoicePaid')) {
+    function InvoicePaid($args)
+    {
 
         $class = new AktuelSms();
         $template = $class->getTemplateDetails(__FUNCTION__);
-        if($template['active'] == 0){
+        if ($template['active'] == 0) {
             return null;
         }
         $settings = $class->getSettings();
-        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        if (!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']) {
             return null;
         }
 
@@ -29,22 +30,22 @@ if(!function_exists('InvoicePaid')){
         JOIN tblclients as b ON b.id = a.userid
         JOIN `tblcustomfieldsvalues` as `c` ON `c`.`relid` = `a`.`userid`
         JOIN `tblcustomfieldsvalues` as `d` ON `d`.`relid` = `a`.`userid`
-        WHERE a.id = '".$args['invoiceid']."'
-        AND `c`.`fieldid` = '".$settings['gsmnumberfield']."'
-        AND `d`.`fieldid` = '".$settings['wantsmsfield']."'
+        WHERE a.id = '" . $args['invoiceid'] . "'
+        AND `c`.`fieldid` = '" . $settings['gsmnumberfield'] . "'
+        AND `d`.`fieldid` = '" . $settings['wantsmsfield'] . "'
         AND `d`.`value` = 'on'
         LIMIT 1
     ";
 
         $result = mysql_query($userSql);
         $num_rows = mysql_num_rows($result);
-        if($num_rows == 1){
+        if ($num_rows == 1) {
             $UserInformation = mysql_fetch_assoc($result);
-            
-            $template['variables'] = str_replace(" ","",$template['variables']);
-            $replacefrom = explode(",",$template['variables']);
-            $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$class->changeDateFormat($UserInformation['duedate']),$args['invoiceid']);
-            $message = str_replace($replacefrom,$replaceto,$template['template']);
+
+            $template['variables'] = str_replace(" ", "", $template['variables']);
+            $replacefrom = explode(",", $template['variables']);
+            $replaceto = array($UserInformation['firstname'], $UserInformation['lastname'], $class->changeDateFormat($UserInformation['duedate']), $args['invoiceid']);
+            $message = str_replace($replacefrom, $replaceto, $template['template']);
 
             $class->setGsmnumber($UserInformation['gsmnumber']);
             $class->setMessage($message);

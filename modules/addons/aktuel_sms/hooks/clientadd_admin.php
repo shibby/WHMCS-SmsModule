@@ -7,21 +7,22 @@ $hook = array(
     'defaultmessage' => 'Sitenize yeni musteri kayit oldu.',
     'variables' => ''
 );
-if(!function_exists('ClientAdd_admin')){
-    function ClientAdd_admin($args){
+if (!function_exists('ClientAdd_admin')) {
+    function ClientAdd_admin($args)
+    {
         $class = new AktuelSms();
         $template = $class->getTemplateDetails(__FUNCTION__);
-        if($template['active'] == 0){
+        if ($template['active'] == 0) {
             return null;
         }
         $settings = $class->getSettings();
-        if(!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']){
+        if (!$settings['api'] || !$settings['apiparams'] || !$settings['gsmnumberfield'] || !$settings['wantsmsfield']) {
             return null;
         }
-        $admingsm = explode(",",$template['admingsm']);
+        $admingsm = explode(",", $template['admingsm']);
 
-        foreach($admingsm as $gsm){
-            if(!empty($gsm)){
+        foreach ($admingsm as $gsm) {
+            if (!empty($gsm)) {
                 $class->setGsmnumber(trim($gsm));
                 $class->setUserid(0);
                 $class->setMessage($template['template']);

@@ -24,7 +24,6 @@ class sendsmsro extends AktuelSms implements SmsSenderInterface
         $log[] = "Request url: " . $url;
         $result = file_get_contents($url);
 
-        $return = $result;
         $log[] = "Sunucudan dönen cevap: " . $result;
 
         $result = json_decode($result, true);
@@ -69,8 +68,8 @@ class sendsmsro extends AktuelSms implements SmsSenderInterface
 }
 
 return array(
-    'value' => 'routesms',
-    'label' => 'Route Sms',
+    'value' => 'sendsmsro',
+    'label' => 'SendSms.ro',
     'fields' => array(
         'user', 'pass'
     )

@@ -32,6 +32,7 @@ Supported SMS Gateways
 * bytehand.com (Global, Russian)
 * 1sms.com.tr (Türkiye)
 * smsGateway.me (Global -> use your own android device to send SMS via API call)
+* SendSms.ro (Romania, Global)
 
 Supported Hooks
 ---------------
@@ -102,6 +103,7 @@ Desteklenen SMS Firmaları
 * bytehand.com (Global, Russian)
 * 1sms.com.tr (Türkiye)
 * smsGateway.me (Global -> use your own android device to send SMS via API call)
+* SendSms.ro (Romania, Global)
 
 
 Desteklenen Hook'lar

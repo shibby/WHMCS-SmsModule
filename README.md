@@ -1,3 +1,7 @@
+DEPRECATED!!! DEVELOPMENT DOESN'T CONTINUE ANYMORE. NOBODY KNOWS IF IT WORKS WITH LATEST WHMCS VERSION. SORRY ABOUT THAT.
+======================================================================
+
+
 ENGLISH
 =======
 

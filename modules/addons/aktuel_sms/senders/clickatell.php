@@ -33,7 +33,7 @@ class clickatell extends AktuelSms
         if ($sess[0] == "OK") {
 
             $sess_id = trim($sess[1]); // remove any whitespace
-            $url = "$baseurl/http/sendmsg?session_id=$sess_id&to=$to&text=$text&from=$params->senderid";
+            $url = "$baseurl/http/sendmsg?session_id=$sess_id&to=$to&text=$text&from=$params->senderid&req_feat=16";
 
             $ret = file($url);
             $send = explode(":", $ret[0]);
